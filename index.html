@@ -3,647 +3,370 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OldBook4U — Buy & sell used books nearby</title>
+<title>OldBook4U — Buy & sell used books near you</title>
+<meta name="description" content="Find secondhand school, college and entrance exam books near you, or sell the ones you've outgrown.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --ink:#1C2A38;
-    --ink-soft:#4A5A68;
-    --paper:#F3EEDF;
-    --paper-raised:#FBF8EF;
-    --gold:#B8842B;
-    --gold-deep:#8F6420;
-    --brick:#A8452B;
-    --sage:#5F7A5C;
-    --line:#DCD2B8;
-    --line-soft:#E8E1CC;
-    --shadow: 0 1px 0 rgba(28,42,56,0.06);
-  }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  body{
-    background:var(--paper);
-    color:var(--ink);
-    font-family:'Public Sans', sans-serif;
-    -webkit-font-smoothing:antialiased;
-  }
-  h1,h2,h3,.display{
-    font-family:'Fraunces', serif;
-    font-weight:600;
-    letter-spacing:-0.01em;
-  }
-  a{color:inherit; text-decoration:none;}
-  button{font-family:inherit; cursor:pointer;}
-
-  /* ---------- Layout shell ---------- */
-  .app{
-    max-width:480px;
-    margin:0 auto;
-    min-height:100vh;
-    background:var(--paper);
-    position:relative;
-    display:flex;
-    flex-direction:column;
-    box-shadow: 0 0 60px rgba(28,42,56,0.08);
-  }
-  .topbar{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:22px 20px 14px;
-  }
-  .logo{
-    font-family:'Fraunces', serif;
-    font-weight:700;
-    font-size:22px;
-    display:flex;
-    align-items:center;
-    gap:8px;
-    color:var(--ink);
-  }
-  .logo .mark{
-    width:26px; height:26px;
-    background:var(--gold);
-    border-radius:3px;
-    position:relative;
-    flex:none;
-  }
-  .logo .mark::after{
-    content:"";
-    position:absolute; left:6px; top:4px; bottom:4px; width:2px;
-    background:var(--paper);
-  }
-  .logo .mark::before{
-    content:"";
-    position:absolute; left:11px; top:4px; bottom:4px; width:2px;
-    background:var(--paper);
-  }
-  .icon-btn{
-    width:38px; height:38px;
-    border-radius:50%;
-    border:1px solid var(--line);
-    background:var(--paper-raised);
-    display:flex; align-items:center; justify-content:center;
-    color:var(--ink);
-  }
-
-  .content{ flex:1; padding-bottom:92px; }
-  .screen{ display:none; animation: fade .25s ease; }
-  .screen.active{ display:block; }
-  @keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
-
-  /* ---------- Search ---------- */
-  .search-wrap{ padding: 4px 20px 18px; }
-  .search{
-    display:flex; align-items:center; gap:10px;
-    background:var(--paper-raised);
-    border:1px solid var(--line);
-    border-radius:10px;
-    padding:12px 14px;
-  }
-  .search input{
-    border:none; outline:none; background:transparent;
-    font-family:'Public Sans', sans-serif; font-size:15px; color:var(--ink);
-    width:100%;
-  }
-  .search input::placeholder{ color:#9B9075; }
-
-  /* ---------- Section heading ---------- */
-  .sec-head{
-    display:flex; align-items:baseline; justify-content:space-between;
-    padding: 6px 20px 12px;
-  }
-  .sec-head h2{ font-size:20px; }
-  .sec-head .count{ font-size:13px; color:var(--ink-soft); }
-
-  .chips{ display:flex; gap:8px; padding: 0 20px 18px; overflow-x:auto; }
-  .chip{
-    flex:none;
-    font-size:13px; font-weight:600;
-    padding:8px 14px;
-    border-radius:999px;
-    border:1px solid var(--line);
-    background:var(--paper-raised);
-    color:var(--ink-soft);
-    white-space:nowrap;
-  }
-  .chip.active{ background:var(--ink); color:var(--paper-raised); border-color:var(--ink); }
-
-  /* ---------- Book grid ---------- */
-  .grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:14px;
-    padding:0 20px 26px;
-  }
-  .book-card{
-    background:var(--paper-raised);
-    border:1px solid var(--line);
-    border-radius:8px;
-    overflow:hidden;
-    position:relative;
-    box-shadow:var(--shadow);
-  }
-  .book-card .spine{
-    position:absolute; left:0; top:0; bottom:0; width:4px;
-  }
-  .book-cover{
-    height:150px;
-    background-size:cover; background-position:center;
-    position:relative;
-    border-bottom:1px solid var(--line);
-  }
-  .badge-sold{
-    position:absolute; top:8px; left:8px;
-    background:var(--brick); color:#fff;
-    font-size:10px; font-weight:700; letter-spacing:.03em;
-    padding:3px 8px; border-radius:4px;
-  }
-  .fav{
-    position:absolute; top:8px; right:8px;
-    width:26px; height:26px; border-radius:50%;
-    background:rgba(251,248,239,0.9);
-    display:flex; align-items:center; justify-content:center;
-    color:var(--brick);
-  }
-  .book-info{ padding:10px 11px 12px; }
-  .book-price{ font-family:'Fraunces', serif; font-weight:700; font-size:17px; color:var(--ink); }
-  .book-title{
-    font-size:13px; color:var(--ink-soft); margin-top:2px;
-    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
-    line-height:1.35;
-  }
-  .book-meta{
-    display:flex; align-items:center; gap:4px;
-    margin-top:8px; font-size:11px; color:var(--sage); font-weight:700;
-  }
-
-  /* ---------- Detail screen ---------- */
-  .detail-hero{
-    height:230px;
-    background-size:cover; background-position:center;
-    position:relative;
-  }
-  .detail-topbar{
-    position:absolute; top:0; left:0; right:0;
-    display:flex; justify-content:space-between; align-items:center;
-    padding:18px 16px;
-  }
-  .detail-topbar .icon-btn{ background:rgba(251,248,239,0.92); }
-  .detail-body{ padding:22px 20px 0; }
-  .price-row{ display:flex; align-items:center; justify-content:space-between; }
-  .price-row .price{ font-size:28px; font-family:'Fraunces',serif; font-weight:700; }
-  .price-row .actions{ display:flex; gap:10px; }
-  .title-detail{ font-size:19px; margin-top:6px; line-height:1.35; font-weight:500; }
-  .meta-row{
-    display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;
-  }
-  .meta-pill{
-    font-size:12px; font-weight:600; color:var(--ink-soft);
-    border:1px solid var(--line); border-radius:7px; padding:7px 11px;
-    display:flex; align-items:center; gap:6px;
-  }
-  .location-card{
-    margin-top:18px;
-    border:1px solid var(--line); border-radius:10px;
-    padding:14px 16px;
-    display:flex; align-items:center; justify-content:space-between;
-    background:var(--paper-raised);
-  }
-  .location-card .label{ font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:#9B9075; font-weight:700;}
-  .location-card .place{ font-size:15px; margin-top:2px; font-weight:600;}
-  .dist-pill{
-    font-size:12px; font-weight:700; color:var(--sage);
-    background:#EAEFE6; padding:6px 10px; border-radius:999px;
-    display:flex; align-items:center; gap:4px;
-  }
-
-  .safety-card{
-    margin:18px 20px 0;
-    border:1px solid var(--line);
-    border-left:3px solid var(--brick);
-    border-radius:8px;
-    padding:16px 16px 14px;
-    background:var(--paper-raised);
-  }
-  .safety-card h3{ font-size:15px; display:flex; align-items:center; gap:8px; color:var(--brick); font-weight:700;}
-  .safety-card ul{ list-style:none; margin-top:10px; }
-  .safety-card li{ font-size:13px; color:var(--ink-soft); padding:6px 0; display:flex; gap:8px; line-height:1.4;}
-  .safety-card li::before{ content:"–"; color:var(--brick); font-weight:700; flex:none; }
-  .safety-card .disclaimer{ font-size:11.5px; color:#9B9075; margin-top:10px; padding-top:10px; border-top:1px solid var(--line-soft); line-height:1.5;}
-
-  .seller-strip{
-    margin:20px 20px 0;
-    display:flex; align-items:center; justify-content:space-between;
-    padding:14px 16px;
-    border:1px solid var(--line); border-radius:10px;
-  }
-  .seller-strip .who{ display:flex; align-items:center; gap:10px; }
-  .avatar{
-    width:38px; height:38px; border-radius:50%;
-    background:var(--ink); color:var(--paper);
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Fraunces',serif; font-weight:700; font-size:15px;
-  }
-  .seller-strip .sname{ font-size:14px; font-weight:700; }
-  .seller-strip .ssub{ font-size:12px; color:var(--ink-soft); }
-  .link-arrow{ font-size:13px; font-weight:700; color:var(--gold-deep); display:flex; align-items:center; gap:4px;}
-
-  .contact-bar{
-    padding:18px 20px 26px;
-    display:flex; gap:10px;
-  }
-  .btn{
-    flex:1;
-    display:flex; align-items:center; justify-content:center; gap:8px;
-    padding:15px 0;
-    border-radius:10px;
-    font-size:15px; font-weight:700;
-    border:1.5px solid transparent;
-  }
-  .btn-outline{ border-color:var(--ink); color:var(--ink); background:transparent; }
-  .btn-call{ background:var(--ink); color:var(--paper); }
-  .btn-whatsapp{ background:#3E7350; color:#fff; }
-
-  .report-link{ text-align:center; margin-top:14px; font-size:12.5px; color:#9B7A6A; text-decoration:underline; }
-
-  /* ---------- Sell form ---------- */
-  .form-wrap{ padding:20px; }
-  .field{ margin-bottom:18px; }
-  .field label{ font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); display:block; margin-bottom:8px;}
-  .field input, .field select, .field textarea{
-    width:100%;
-    border:1px solid var(--line);
-    background:var(--paper-raised);
-    border-radius:8px;
-    padding:13px 14px;
-    font-family:'Public Sans',sans-serif;
-    font-size:14.5px;
-    color:var(--ink);
-    outline:none;
-  }
-  .field textarea{ resize:vertical; min-height:70px; }
-  .field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--gold); }
-  .upload-box{
-    border:1.5px dashed var(--line);
-    border-radius:10px;
-    padding:26px 14px;
-    text-align:center;
-    color:var(--ink-soft);
-    font-size:13px;
-    background:var(--paper-raised);
-  }
-  .upload-box .icon{ font-size:22px; margin-bottom:6px; }
-  .submit-btn{
-    width:100%; background:var(--gold-deep); color:#fff;
-    padding:16px 0; border-radius:10px; font-size:15px; font-weight:700;
-    margin-top:6px;
-  }
-
-  /* ---------- My listings (seller) ---------- */
-  .listing-row{
-    display:flex; gap:12px;
-    padding:14px 20px;
-    border-bottom:1px solid var(--line-soft);
-  }
-  .listing-row .thumb{
-    width:64px; height:80px; border-radius:6px; background-size:cover; background-position:center; flex:none;
-    border:1px solid var(--line);
-  }
-  .listing-row .info{ flex:1; min-width:0; }
-  .listing-row .ltitle{ font-size:14px; font-weight:600; line-height:1.3;
-    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
-  .listing-row .lprice{ font-family:'Fraunces',serif; font-weight:700; margin-top:4px; font-size:15px;}
-  .status-tag{
-    display:inline-block; font-size:10.5px; font-weight:700; padding:3px 8px;
-    border-radius:5px; margin-top:6px;
-  }
-  .status-tag.live{ background:#EAEFE6; color:var(--sage); }
-  .status-tag.sold{ background:#F3E2DC; color:var(--brick); }
-  .lactions{ display:flex; gap:8px; margin-top:9px; }
-  .laction{
-    font-size:11.5px; font-weight:700; padding:6px 10px;
-    border-radius:6px; border:1px solid var(--line);
-    background:var(--paper-raised); color:var(--ink-soft);
-  }
-  .laction.sold-btn{ color:var(--sage); border-color:#C8D6C4;}
-  .laction.del-btn{ color:var(--brick); border-color:#E3C3B7;}
-  .empty-state{
-    text-align:center; padding:70px 30px;
-    color:var(--ink-soft);
-  }
-  .empty-state .big{ font-size:38px; margin-bottom:14px; }
-  .empty-state h3{ font-size:17px; color:var(--ink); margin-bottom:6px; }
-  .empty-state p{ font-size:13.5px; line-height:1.5; }
-
-  /* ---------- Bottom nav ---------- */
-  .bottomnav{
-    position:fixed; bottom:0; left:50%; transform:translateX(-50%);
-    width:100%; max-width:480px;
-    background:var(--paper-raised);
-    border-top:1px solid var(--line);
-    display:flex;
-    padding:10px 8px 14px;
-    z-index:20;
-  }
-  .navitem{
-    flex:1;
-    display:flex; flex-direction:column; align-items:center; gap:4px;
-    font-size:10.5px; font-weight:600; color:#9B9075;
-  }
-  .navitem.active{ color:var(--ink); }
-  .navitem .ni-icon{ font-size:18px; line-height:1; }
-  .sell-fab{
-    position:fixed; bottom:64px; left:50%; transform:translateX(-50%);
-    width:52px; height:52px; border-radius:50%;
-    background:var(--gold-deep);
-    color:#fff; display:flex; align-items:center; justify-content:center;
-    font-size:24px; font-weight:400;
-    box-shadow:0 6px 16px rgba(143,100,32,0.35);
-    z-index:21;
-    border:3px solid var(--paper);
-  }
-
-  .section-title-bar{
-    padding:20px 20px 4px;
-  }
-  .section-title-bar h1{ font-size:24px; }
-  .section-title-bar p{ font-size:13.5px; color:var(--ink-soft); margin-top:4px; }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="app">
+<!-- ============ NAVBAR ============ -->
+<header class="navbar">
+  <div class="nav-inner">
+    <a href="#" class="logo" onclick="Nav.go('home')">
+      <span class="mark"></span> OldBook4U
+    </a>
 
-  <!-- ================= HOME ================= -->
-  <div class="screen active" id="screen-home">
-    <div class="topbar">
-      <div class="logo"><span class="mark"></span> OldBook4U</div>
-      <div class="icon-btn" onclick="showScreen('account')">☰</div>
+    <nav class="nav-links">
+      <a onclick="Nav.go('home')">Browse</a>
+      <a onclick="Nav.go('mylistings')">My Listings</a>
+      <a href="#categories-section" onclick="Nav.go('home')">Categories</a>
+    </nav>
+
+    <div class="nav-search">
+      <span class="s-icon">⌕</span>
+      <input id="navSearchInput" placeholder="Search for a book, subject, class..." />
     </div>
 
-    <div class="search-wrap">
-      <div class="search">
-        <span>⌕</span>
-        <input placeholder="Search — Class 11, NEET, Goosebumps...">
-      </div>
+    <div class="nav-actions">
+      <button class="btn btn-ghost" id="authBtn" onclick="Auth.openModal()">Log in</button>
+      <button class="btn btn-solid" onclick="Nav.go('sell')">+ Sell a book</button>
     </div>
 
-    <div class="chips">
-      <div class="chip active">All</div>
-      <div class="chip">School</div>
-      <div class="chip">Entrance</div>
-      <div class="chip">Fiction</div>
-      <div class="chip">Non-fiction</div>
-      <div class="chip">College</div>
-    </div>
-
-    <div class="sec-head">
-      <h2>Nearby, under 1&nbsp;km</h2>
-      <span class="count">42 books</span>
-    </div>
-
-    <div class="grid">
-      <div class="book-card" onclick="showScreen('detail')">
-        <div class="spine" style="background:var(--gold)"></div>
-        <div class="book-cover" style="background-image:url('https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400')">
-          <div class="fav">♡</div>
-        </div>
-        <div class="book-info">
-          <div class="book-price">₹80</div>
-          <div class="book-title">Prana, Mudra aur Kundalini Yoga</div>
-          <div class="book-meta">📍 &lt;100m away</div>
-        </div>
-      </div>
-      <div class="book-card" onclick="showScreen('detail')">
-        <div class="spine" style="background:var(--brick)"></div>
-        <div class="book-cover" style="background-image:url('https://images.unsplash.com/photo-1535905557558-afc4877a26fc?w=400')">
-          <div class="fav">♡</div>
-        </div>
-        <div class="book-info">
-          <div class="book-price">₹150</div>
-          <div class="book-title">Introductory Macroeconomics — Class XII</div>
-          <div class="book-meta">📍 1.2 km</div>
-        </div>
-      </div>
-      <div class="book-card" onclick="showScreen('detail')">
-        <div class="spine" style="background:var(--sage)"></div>
-        <div class="book-cover" style="background-image:url('https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400')">
-          <div class="fav">♡</div>
-        </div>
-        <div class="book-info">
-          <div class="book-price">₹85</div>
-          <div class="book-title">Goosebumps HorrorLand — Ghost Dog Howls</div>
-          <div class="book-meta">📍 340m away</div>
-        </div>
-      </div>
-      <div class="book-card" onclick="showScreen('detail')">
-        <div class="spine" style="background:var(--gold)"></div>
-        <div class="book-cover" style="background-image:url('https://images.unsplash.com/photo-1589998059171-988d887df646?w=400')">
-          <div class="fav">♡</div>
-        </div>
-        <div class="book-info">
-          <div class="book-price">₹100</div>
-          <div class="book-title">Leap to Gain — Class 11 Physics</div>
-          <div class="book-meta">📍 &lt;100m away</div>
-        </div>
-      </div>
-    </div>
+    <button class="nav-burger" onclick="Nav.toggleMobileMenu()">☰</button>
   </div>
 
-  <!-- ================= BOOK DETAIL ================= -->
-  <div class="screen" id="screen-detail">
-    <div class="detail-hero" style="background-image:url('https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=800')">
-      <div class="detail-topbar">
-        <div class="icon-btn" onclick="showScreen('home')">←</div>
-        <div class="icon-btn">♡</div>
-      </div>
-    </div>
-    <div class="detail-body">
-      <div class="price-row">
-        <div class="price">₹80</div>
-      </div>
-      <div class="title-detail">Prana, Mudra aur Kundalini Yoga</div>
-
-      <div class="meta-row">
-        <div class="meta-pill">📚 Health &amp; Yoga</div>
-        <div class="meta-pill">📗 Good condition</div>
-      </div>
-
-      <div class="location-card">
-        <div>
-          <div class="label">Location</div>
-          <div class="place">Gharoli, New Delhi</div>
-        </div>
-        <div class="dist-pill">📍 &lt;100 m</div>
-      </div>
-    </div>
-
-    <div class="seller-strip">
-      <div class="who">
-        <div class="avatar">R</div>
-        <div>
-          <div class="sname">Rohit S.</div>
-          <div class="ssub">Member since Jul 2026</div>
-        </div>
-      </div>
-      <div class="link-arrow">More by seller →</div>
-    </div>
-
-    <div class="safety-card">
-      <h3>🛡 Tips for a safe deal</h3>
-      <ul>
-        <li>Never pay or hand over the book in advance.</li>
-        <li>Don't enter your UPI PIN while receiving money.</li>
-        <li>Meet in a public place during daytime where possible.</li>
-      </ul>
-      <div class="disclaimer">OldBook4U connects buyers and sellers directly. We don't handle payment or delivery, so deal carefully.</div>
-    </div>
-
-    <div class="contact-bar">
-      <button class="btn btn-outline" onclick="alert('Would open dialer: tel:+91XXXXXXXXXX')">📞 Call</button>
-      <button class="btn btn-whatsapp" onclick="alert('Would open: wa.me/91XXXXXXXXXX?text=Hi, is this book still available?')">✆ WhatsApp</button>
-    </div>
-    <div class="report-link">Report this listing</div>
-    <div style="height:30px"></div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a onclick="Nav.go('home')">Browse</a>
+    <a onclick="Nav.go('mylistings')">My Listings</a>
+    <a onclick="Nav.go('sell')">Sell a book</a>
+    <a id="mobileAuthBtn" onclick="Auth.openModal()">Log in</a>
   </div>
+</header>
 
-  <!-- ================= SELL FORM ================= -->
-  <div class="screen" id="screen-sell">
-    <div class="topbar">
-      <div class="icon-btn" onclick="showScreen('home')">←</div>
-      <div class="logo" style="font-size:17px;">List a book</div>
-      <div style="width:38px"></div>
-    </div>
+<main id="app">
 
-    <div class="form-wrap">
-      <div class="field">
-        <label>Book photo</label>
-        <div class="upload-box">
-          <div class="icon">📷</div>
-          Tap to add a clear cover photo
-        </div>
-      </div>
-      <div class="field">
-        <label>Title</label>
-        <input placeholder="e.g. NCERT Physics Class 12">
-      </div>
-      <div class="field">
-        <label>Price (₹)</label>
-        <input placeholder="e.g. 120" type="number">
-      </div>
-      <div class="field">
-        <label>Category</label>
-        <select>
-          <option>School Books</option>
-          <option>College Books</option>
-          <option>Entrance Exam</option>
-          <option>Fiction</option>
-          <option>Non-Fiction</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Condition</label>
-        <select>
-          <option>Like new</option>
-          <option>Good — light wear</option>
-          <option>Fair — used but complete</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Your phone / WhatsApp number</label>
-        <input placeholder="+91 " type="tel">
-      </div>
-      <div class="field">
-        <label>Notes (optional)</label>
-        <textarea placeholder="Any missing pages, edition year, etc."></textarea>
-      </div>
-      <button class="submit-btn" onclick="showScreen('mylistings')">Publish listing</button>
-    </div>
-  </div>
+  <!-- ============ HOME ============ -->
+  <section class="view active" id="view-home">
 
-  <!-- ================= MY LISTINGS (seller side) ================= -->
-  <div class="screen" id="screen-mylistings">
-    <div class="section-title-bar">
-      <h1>My listings</h1>
-      <p>Manage what you've listed for sale</p>
-    </div>
-
-    <div class="listing-row">
-      <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=200')"></div>
-      <div class="info">
-        <div class="ltitle">Prana, Mudra aur Kundalini Yoga</div>
-        <div class="lprice">₹80</div>
-        <span class="status-tag live">Live</span>
-        <div class="lactions">
-          <button class="laction sold-btn">Mark as sold</button>
-          <button class="laction del-btn">Delete</button>
+    <div class="hero">
+      <div class="hero-inner">
+        <h1>Books someone's done with.<br>Books someone else needs.</h1>
+        <p>Buy and sell used school, college and exam books directly with people near you — no shipping, no middleman.</p>
+        <div class="hero-search">
+          <span class="s-icon">⌕</span>
+          <input id="heroSearchInput" placeholder="Try “Class 11 Physics” or “NEET biology”">
+          <button class="btn btn-solid" onclick="Books.applySearch()">Search</button>
         </div>
       </div>
     </div>
 
-    <div class="listing-row">
-      <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1589998059171-988d887df646?w=200')"></div>
-      <div class="info">
-        <div class="ltitle">Leap to Gain — Class 11 Physics</div>
-        <div class="lprice">₹100</div>
-        <span class="status-tag live">Live</span>
-        <div class="lactions">
-          <button class="laction sold-btn">Mark as sold</button>
-          <button class="laction del-btn">Delete</button>
+    <div class="section-wrap" id="categories-section">
+      <h2 class="section-title">Browse by category</h2>
+      <div class="cat-grid">
+        <div class="cat-card" data-cat="School">
+          <div class="cat-emoji">🏫</div><div class="cat-name">School Books</div>
+        </div>
+        <div class="cat-card" data-cat="College">
+          <div class="cat-emoji">🎓</div><div class="cat-name">College Books</div>
+        </div>
+        <div class="cat-card" data-cat="Entrance">
+          <div class="cat-emoji">📐</div><div class="cat-name">Entrance Exam</div>
+        </div>
+        <div class="cat-card" data-cat="Fiction">
+          <div class="cat-emoji">📗</div><div class="cat-name">Fiction</div>
+        </div>
+        <div class="cat-card" data-cat="Non-Fiction">
+          <div class="cat-emoji">📘</div><div class="cat-name">Non-Fiction</div>
+        </div>
+        <div class="cat-card" data-cat="Other">
+          <div class="cat-emoji">📚</div><div class="cat-name">Other</div>
         </div>
       </div>
     </div>
 
-    <div class="listing-row">
-      <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1512820790803-83ca734da794?w=200'); opacity:.55"></div>
-      <div class="info">
-        <div class="ltitle">Goosebumps HorrorLand</div>
-        <div class="lprice">₹85</div>
-        <span class="status-tag sold">Sold</span>
-        <div class="lactions">
-          <button class="laction del-btn">Delete</button>
+    <div class="section-wrap browse-layout">
+
+      <aside class="filters">
+        <h3>Filters</h3>
+
+        <div class="filter-group">
+          <label>Category</label>
+          <select id="filterCategory">
+            <option value="">All categories</option>
+            <option>School</option>
+            <option>College</option>
+            <option>Entrance</option>
+            <option>Fiction</option>
+            <option>Non-Fiction</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Condition</label>
+          <select id="filterCondition">
+            <option value="">Any condition</option>
+            <option>Like new</option>
+            <option>Good — light wear</option>
+            <option>Fair — used but complete</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Max price (₹)</label>
+          <input type="number" id="filterMaxPrice" placeholder="e.g. 300">
+        </div>
+
+        <div class="filter-group">
+          <label>Sort by</label>
+          <select id="filterSort">
+            <option value="newest">Newest first</option>
+            <option value="price_low">Price: low to high</option>
+            <option value="price_high">Price: high to low</option>
+          </select>
+        </div>
+
+        <button class="btn btn-outline w-full" onclick="Books.applyFilters()">Apply filters</button>
+        <button class="btn-link w-full" onclick="Books.resetFilters()">Clear all</button>
+      </aside>
+
+      <div class="listings-col">
+        <div class="listings-head">
+          <h2 class="section-title no-margin" id="resultsHeading">All books nearby</h2>
+          <span class="results-count" id="resultsCount"></span>
+        </div>
+
+        <div class="grid" id="booksGrid">
+          <!-- book cards injected by app.js -->
+        </div>
+
+        <div class="empty-state" id="booksEmpty" style="display:none;">
+          <div class="big">📭</div>
+          <h3>No books match yet</h3>
+          <p>Try clearing a filter, or be the first to list one in this category.</p>
         </div>
       </div>
     </div>
+  </section>
 
-  </div>
+  <!-- ============ BOOK DETAIL ============ -->
+  <section class="view" id="view-detail">
+    <div class="section-wrap detail-wrap">
+      <button class="back-link" onclick="Nav.go('home')">← Back to browse</button>
 
-  <!-- ================= ACCOUNT ================= -->
-  <div class="screen" id="screen-account">
-    <div class="section-title-bar">
-      <h1>Account</h1>
+      <div class="detail-grid">
+        <div class="detail-image" id="detailImage"></div>
+
+        <div class="detail-info">
+          <div class="detail-top-row">
+            <span class="pill pill-cat" id="detailCategory">Category</span>
+            <button class="icon-btn" id="detailFavBtn">♡</button>
+          </div>
+          <h1 class="detail-title" id="detailTitle">Book title</h1>
+          <div class="detail-price" id="detailPrice">₹0</div>
+
+          <div class="detail-meta-row">
+            <span class="meta-pill" id="detailCondition">Condition</span>
+            <span class="meta-pill" id="detailDistance">📍 Location</span>
+          </div>
+
+          <div class="detail-notes" id="detailNotes"></div>
+
+          <div class="seller-card">
+            <div class="who">
+              <div class="avatar" id="sellerAvatar">?</div>
+              <div>
+                <div class="sname" id="sellerName">Seller</div>
+                <div class="ssub" id="sellerJoined">Member</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="safety-card">
+            <h3>🛡 Tips for a safe deal</h3>
+            <ul>
+              <li>Never pay or hand over money in advance.</li>
+              <li>Don't share your UPI PIN with anyone, ever.</li>
+              <li>Meet in a public place during the day where possible.</li>
+            </ul>
+            <div class="disclaimer">OldBook4U connects buyers and sellers directly. We don't handle payment or delivery — deal carefully.</div>
+          </div>
+
+          <div class="contact-row">
+            <a class="btn btn-outline flex-1" id="callBtn" href="#">📞 Call seller</a>
+            <a class="btn btn-whatsapp flex-1" id="whatsappBtn" href="#" target="_blank">✆ WhatsApp seller</a>
+          </div>
+          <button class="btn-link" onclick="alert('Report submitted. Our team will review this listing.')">Report this listing</button>
+        </div>
+      </div>
     </div>
-    <div class="empty-state">
-      <div class="big">📖</div>
-      <h3>Not logged in</h3>
-      <p>Log in to list books, chat with sellers,<br>and manage your listings.</p>
+  </section>
+
+  <!-- ============ SELL FORM ============ -->
+  <section class="view" id="view-sell">
+    <div class="section-wrap narrow-wrap">
+      <h1 class="page-title">List a book for sale</h1>
+      <p class="page-sub">Add a clear photo and a fair price — most books sell within a week.</p>
+
+      <form id="sellForm" class="sell-form" onsubmit="return Books.submitListing(event)">
+        <div class="form-grid">
+
+          <div class="field span-2">
+            <label>Book photo</label>
+            <label class="upload-box" id="uploadBox">
+              <span class="icon">📷</span>
+              <span id="uploadText">Click to upload a cover photo</span>
+              <input type="file" id="photoInput" accept="image/*" hidden required>
+            </label>
+          </div>
+
+          <div class="field span-2">
+            <label>Title</label>
+            <input id="fTitle" placeholder="e.g. NCERT Physics Class 12" required>
+          </div>
+
+          <div class="field">
+            <label>Price (₹)</label>
+            <input id="fPrice" type="number" min="1" placeholder="e.g. 120" required>
+          </div>
+
+          <div class="field">
+            <label>Category</label>
+            <select id="fCategory" required>
+              <option value="">Choose one</option>
+              <option>School</option>
+              <option>College</option>
+              <option>Entrance</option>
+              <option>Fiction</option>
+              <option>Non-Fiction</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Condition</label>
+            <select id="fCondition" required>
+              <option value="">Choose one</option>
+              <option>Like new</option>
+              <option>Good — light wear</option>
+              <option>Fair — used but complete</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Location (area, city)</label>
+            <input id="fLocation" placeholder="e.g. Gharoli, New Delhi" required>
+          </div>
+
+          <div class="field">
+            <label>Your phone / WhatsApp number</label>
+            <input id="fPhone" type="tel" placeholder="10-digit number, no country code" required>
+          </div>
+
+          <div class="field">
+            <label>Your name (shown to buyers)</label>
+            <input id="fName" placeholder="e.g. Rohit S." required>
+          </div>
+
+          <div class="field span-2">
+            <label>Notes (optional)</label>
+            <textarea id="fNotes" placeholder="Edition year, missing pages, highlighting, etc."></textarea>
+          </div>
+        </div>
+
+        <button class="btn btn-solid btn-large" type="submit" id="sellSubmitBtn">Publish listing</button>
+      </form>
     </div>
-  </div>
+  </section>
 
-  <!-- ================= BOTTOM NAV ================= -->
-  <div class="sell-fab" onclick="showScreen('sell')">+</div>
-  <div class="bottomnav">
-    <div class="navitem active" data-screen="home" onclick="showScreen('home')"><span class="ni-icon">⌂</span>Home</div>
-    <div class="navitem" data-screen="mylistings" onclick="showScreen('mylistings')"><span class="ni-icon">▤</span>My Listings</div>
-    <div class="navitem" style="opacity:0"><span class="ni-icon">+</span></div>
-    <div class="navitem" data-screen="detail" onclick="showScreen('detail')"><span class="ni-icon">📖</span>Sample listing</div>
-    <div class="navitem" data-screen="account" onclick="showScreen('account')"><span class="ni-icon">◍</span>Account</div>
-  </div>
+  <!-- ============ MY LISTINGS ============ -->
+  <section class="view" id="view-mylistings">
+    <div class="section-wrap">
+      <h1 class="page-title">My listings</h1>
+      <p class="page-sub">Manage what you've listed for sale.</p>
 
+      <div class="grid" id="myListingsGrid"></div>
+
+      <div class="empty-state" id="myListingsEmpty" style="display:none;">
+        <div class="big">📖</div>
+        <h3 id="myListingsEmptyTitle">Nothing listed yet</h3>
+        <p id="myListingsEmptyText">Once you list a book, you can mark it sold or delete it from here.</p>
+        <button class="btn btn-solid" onclick="Nav.go('sell')" style="margin-top:14px;">List your first book</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ AUTH MODAL ============ -->
+<div class="modal-backdrop" id="authModal">
+  <div class="modal">
+    <button class="modal-close" onclick="Auth.closeModal()">×</button>
+    <div class="modal-tabs">
+      <button class="modal-tab active" data-tab="login" onclick="Auth.switchTab('login')">Log in</button>
+      <button class="modal-tab" data-tab="signup" onclick="Auth.switchTab('signup')">Sign up</button>
+    </div>
+
+    <form id="loginForm" class="modal-form" onsubmit="return Auth.login(event)">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="loginEmail" required>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="loginPassword" required>
+      </div>
+      <button class="btn btn-solid w-full" type="submit">Log in</button>
+      <div class="form-error" id="loginError"></div>
+    </form>
+
+    <form id="signupForm" class="modal-form" style="display:none;" onsubmit="return Auth.signup(event)">
+      <div class="field">
+        <label>Name</label>
+        <input type="text" id="signupName" required>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="signupEmail" required>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="signupPassword" minlength="8" required>
+      </div>
+      <button class="btn btn-solid w-full" type="submit">Create account</button>
+      <div class="form-error" id="signupError"></div>
+    </form>
+  </div>
 </div>
 
-<script>
-  function showScreen(name){
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('screen-' + name).classList.add('active');
-    document.querySelectorAll('.navitem').forEach(n => n.classList.remove('active'));
-    const nav = document.querySelector('.navitem[data-screen="'+name+'"]');
-    if(nav) nav.classList.add('active');
-    document.querySelector('.app').scrollTop = 0;
-    window.scrollTo(0,0);
-  }
-</script>
+<div class="toast" id="toast"></div>
 
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="logo"><span class="mark"></span> OldBook4U</div>
+      <p>A local marketplace for secondhand books. List in minutes, meet nearby, done.</p>
+    </div>
+    <div class="footer-links">
+      <div>
+        <h4>Marketplace</h4>
+        <a onclick="Nav.go('home')">Browse books</a>
+        <a onclick="Nav.go('sell')">Sell a book</a>
+        <a onclick="Nav.go('mylistings')">My listings</a>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <a href="#">Safety tips</a>
+        <a href="#">Report a listing</a>
+        <a href="#">Contact us</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">© <span id="year"></span> OldBook4U. Buyers and sellers deal directly — trade carefully.</div>
+</footer>
+
+<script type="module" src="app.js"></script>
 </body>
 </html>
