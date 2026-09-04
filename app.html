@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OldBook4U — Buy & sell used books near you</title>
+<meta name="description" content="Find secondhand school, college and entrance exam books near you, or sell the ones you've outgrown.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ NAVBAR ============ -->
+<header class="navbar">
+  <div class="nav-inner">
+    <a href="#" class="logo" onclick="Nav.go('home'); return false;">
+      <span class="mark"></span> OldBook4U
+    </a>
+
+    <nav class="nav-links">
+      <a onclick="Nav.go('home')">Browse</a>
+      <a onclick="Nav.go('mylistings')">My Listings</a>
+      <a href="#categories-section" onclick="Nav.go('home')">Categories</a>
+    </nav>
+
+    <div class="nav-search">
+      <span class="s-icon">⌕</span>
+      <input id="navSearchInput" placeholder="Search for a book, subject, class..." />
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-ghost" id="authBtn" onclick="Auth.openModal()">Log in</button>
+      <button class="btn btn-solid" onclick="Nav.go('sell')">+ Sell a book</button>
+    </div>
+
+    <button class="nav-burger" onclick="Nav.toggleMobileMenu()">☰</button>
+  </div>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a onclick="Nav.go('home')">Browse</a>
+    <a onclick="Nav.go('mylistings')">My Listings</a>
+    <a onclick="Nav.go('sell')">Sell a book</a>
+    <a id="mobileAuthBtn" onclick="Auth.openModal()">Log in</a>
+  </div>
+</header>
+
+<main id="app">
+
+  <!-- ============ HOME ============ -->
+  <section class="view active" id="view-home">
+
+    <div class="hero">
+      <div class="hero-inner">
+        <h1>Books someone's done with.<br>Books someone else needs.</h1>
+        <p>Buy and sell used school, college and exam books directly with people near you — no shipping, no middleman.</p>
+        <div class="hero-search">
+          <span class="s-icon">⌕</span>
+          <input id="heroSearchInput" placeholder="Try “Class 11 Physics” or “NEET biology”">
+          <button class="btn btn-solid" onclick="Books.applySearch()">Search</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-wrap" id="categories-section">
+      <h2 class="section-title">Browse by category</h2>
+      <div class="cat-grid">
+        <div class="cat-card" data-cat="School">
+          <div class="cat-emoji">🏫</div><div class="cat-name">School Books</div>
+        </div>
+        <div class="cat-card" data-cat="College">
+          <div class="cat-emoji">🎓</div><div class="cat-name">College Books</div>
+        </div>
+        <div class="cat-card" data-cat="Entrance">
+          <div class="cat-emoji">📐</div><div class="cat-name">Entrance Exam</div>
+        </div>
+        <div class="cat-card" data-cat="Fiction">
+          <div class="cat-emoji">📗</div><div class="cat-name">Fiction</div>
+        </div>
+        <div class="cat-card" data-cat="Non-Fiction">
+          <div class="cat-emoji">📘</div><div class="cat-name">Non-Fiction</div>
+        </div>
+        <div class="cat-card" data-cat="Other">
+          <div class="cat-emoji">📚</div><div class="cat-name">Other</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-wrap browse-layout">
+
+      <aside class="filters">
+        <h3>Filters</h3>
+
+        <div class="filter-group">
+          <label>Category</label>
+          <select id="filterCategory">
+            <option value="">All categories</option>
+            <option>School</option>
+            <option>College</option>
+            <option>Entrance</option>
+            <option>Fiction</option>
+            <option>Non-Fiction</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Condition</label>
+          <select id="filterCondition">
+            <option value="">Any condition</option>
+            <option>Like new</option>
+            <option>Good — light wear</option>
+            <option>Fair — used but complete</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Max price (₹)</label>
+          <input type="number" id="filterMaxPrice" placeholder="e.g. 300">
+        </div>
+
+        <div class="filter-group">
+          <label>Sort by</label>
+          <select id="filterSort">
+            <option value="newest">Newest first</option>
+            <option value="price_low">Price: low to high</option>
+            <option value="price_high">Price: high to low</option>
+          </select>
+        </div>
+
+        <button class="btn btn-outline w-full" onclick="Books.applyFilters()">Apply filters</button>
+        <button class="btn-link w-full" onclick="Books.resetFilters()">Clear all</button>
+      </aside>
+
+      <div class="listings-col">
+        <div class="listings-head">
+          <h2 class="section-title no-margin" id="resultsHeading">All books nearby</h2>
+          <span class="results-count" id="resultsCount"></span>
+        </div>
+
+        <div class="grid" id="booksGrid">
+          <!-- book cards injected by app.js -->
+        </div>
+
+        <div class="empty-state" id="booksEmpty" style="display:none;">
+          <div class="big">📭</div>
+          <h3>No books match yet</h3>
+          <p>Try clearing a filter, or be the first to list one in this category.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BOOK DETAIL ============ -->
+  <section class="view" id="view-detail">
+    <div class="section-wrap detail-wrap">
+      <button class="back-link" onclick="Nav.go('home')">← Back to browse</button>
+
+      <div class="detail-grid">
+        <div class="detail-image" id="detailImage"></div>
+
+        <div class="detail-info">
+          <div class="detail-top-row">
+            <span class="pill pill-cat" id="detailCategory">Category</span>
+            <button class="icon-btn" id="detailFavBtn">♡</button>
+          </div>
+          <h1 class="detail-title" id="detailTitle">Book title</h1>
+          <div class="detail-price" id="detailPrice">₹0</div>
+
+          <div class="detail-meta-row">
+            <span class="meta-pill" id="detailCondition">Condition</span>
+            <span class="meta-pill" id="detailDistance">📍 Location</span>
+          </div>
+
+          <div class="detail-notes" id="detailNotes"></div>
+
+          <div class="seller-card">
+            <div class="who">
+              <div class="avatar" id="sellerAvatar">?</div>
+              <div>
+                <div class="sname" id="sellerName">Seller</div>
+                <div class="ssub" id="sellerJoined">Member</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="safety-card">
+            <h3>🛡 Tips for a safe deal</h3>
+            <ul>
+              <li>Never pay or hand over money in advance.</li>
+              <li>Don't share your UPI PIN with anyone, ever.</li>
+              <li>Meet in a public place during the day where possible.</li>
+            </ul>
+            <div class="disclaimer">OldBook4U connects buyers and sellers directly. We don't handle payment or delivery — deal carefully.</div>
+          </div>
+
+          <div class="contact-row">
+            <a class="btn btn-outline flex-1" id="callBtn" href="#">📞 Call seller</a>
+            <a class="btn btn-whatsapp flex-1" id="whatsappBtn" href="#" target="_blank">✆ WhatsApp seller</a>
+          </div>
+          <button class="btn-link" onclick="alert('Report submitted. Our team will review this listing.')">Report this listing</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SELL FORM ============ -->
+  <section class="view" id="view-sell">
+    <div class="section-wrap narrow-wrap">
+      <h1 class="page-title">List a book for sale</h1>
+      <p class="page-sub">Add a clear photo and a fair price — most books sell within a week.</p>
+
+      <form id="sellForm" class="sell-form" onsubmit="return Books.submitListing(event)">
+        <div class="form-grid">
+
+          <div class="field span-2">
+            <label>Book photo</label>
+            <label class="upload-box" id="uploadBox">
+              <span class="icon">📷</span>
+              <span id="uploadText">Click to upload a cover photo</span>
+              <input type="file" id="photoInput" accept="image/*" hidden required>
+            </label>
+          </div>
+
+          <div class="field span-2">
+            <label>Title</label>
+            <input id="fTitle" placeholder="e.g. NCERT Physics Class 12" required>
+          </div>
+
+          <div class="field">
+            <label>Price (₹)</label>
+            <input id="fPrice" type="number" min="1" placeholder="e.g. 120" required>
+          </div>
+
+          <div class="field">
+            <label>Category</label>
+            <select id="fCategory" required>
+              <option value="">Choose one</option>
+              <option>School</option>
+              <option>College</option>
+              <option>Entrance</option>
+              <option>Fiction</option>
+              <option>Non-Fiction</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Condition</label>
+            <select id="fCondition" required>
+              <option value="">Choose one</option>
+              <option>Like new</option>
+              <option>Good — light wear</option>
+              <option>Fair — used but complete</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Location (area, city)</label>
+            <input id="fLocation" placeholder="e.g. Gharoli, New Delhi" required>
+          </div>
+
+          <div class="field">
+            <label>Your phone / WhatsApp number</label>
+            <input id="fPhone" type="tel" placeholder="10-digit number, no country code" required>
+          </div>
+
+          <div class="field">
+            <label>Your name (shown to buyers)</label>
+            <input id="fName" placeholder="e.g. Rohit S." required>
+          </div>
+
+          <div class="field span-2">
+            <label>Notes (optional)</label>
+            <textarea id="fNotes" placeholder="Edition year, missing pages, highlighting, etc."></textarea>
+          </div>
+        </div>
+
+        <button class="btn btn-solid btn-large" type="submit" id="sellSubmitBtn">Publish listing</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============ MY LISTINGS ============ -->
+  <section class="view" id="view-mylistings">
+    <div class="section-wrap">
+      <h1 class="page-title">My listings</h1>
+      <p class="page-sub">Manage what you've listed for sale.</p>
+
+      <div class="grid" id="myListingsGrid"></div>
+
+      <div class="empty-state" id="myListingsEmpty" style="display:none;">
+        <div class="big">📖</div>
+        <h3 id="myListingsEmptyTitle">Nothing listed yet</h3>
+        <p id="myListingsEmptyText">Once you list a book, you can mark it sold or delete it from here.</p>
+        <button class="btn btn-solid" onclick="Nav.go('sell')" style="margin-top:14px;">List your first book</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ AUTH MODAL ============ -->
+<div class="modal-backdrop" id="authModal">
+  <div class="modal">
+    <button class="modal-close" onclick="Auth.closeModal()">×</button>
+    <div class="modal-tabs">
+      <button class="modal-tab active" data-tab="login" onclick="Auth.switchTab('login')">Log in</button>
+      <button class="modal-tab" data-tab="signup" onclick="Auth.switchTab('signup')">Sign up</button>
+    </div>
+
+    <button type="button" class="btn btn-outline w-full google-btn" onclick="Auth.loginWithGoogle()">
+      <svg width="18" height="18" viewBox="0 0 48 48" style="flex:none;">
+        <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.9 32.6 29.4 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.5 29.6 4.5 24 4.5 13.2 4.5 4.5 13.2 4.5 24S13.2 43.5 24 43.5c10.4 0 19.5-8.5 19.5-19.5 0-1.3-.1-2.7-.4-4z"/>
+        <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.5 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.5 29.6 4.5 24 4.5c-7.8 0-14.4 4.5-17.7 11z"/>
+        <path fill="#4CAF50" d="M24 43.5c5.5 0 10.4-1.9 14.3-5.1l-6.6-5.4c-2 1.4-4.7 2.3-7.7 2.3-5.4 0-9.9-3.4-11.5-8.2l-6.7 5.2c3.3 6.5 9.9 11.2 18.2 11.2z"/>
+        <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.9 2.5-2.5 4.6-4.6 6l6.6 5.4C41 35.7 43.5 30.2 43.5 24c0-1.3-.1-2.7-.4-3.5z"/>
+      </svg>
+      Continue with Google
+    </button>
+    <div class="modal-divider"><span>or</span></div>
+
+    <form id="loginForm" class="modal-form" onsubmit="return Auth.login(event)">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="loginEmail" required>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="loginPassword" required>
+      </div>
+      <button class="btn btn-solid w-full" type="submit">Log in</button>
+      <div class="form-error" id="loginError"></div>
+    </form>
+
+    <form id="signupForm" class="modal-form" style="display:none;" onsubmit="return Auth.signup(event)">
+      <div class="field">
+        <label>Name</label>
+        <input type="text" id="signupName" required>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="signupEmail" required>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="signupPassword" minlength="8" required>
+      </div>
+      <button class="btn btn-solid w-full" type="submit">Create account</button>
+      <div class="form-error" id="signupError"></div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="logo"><span class="mark"></span> OldBook4U</div>
+      <p>A local marketplace for secondhand books. List in minutes, meet nearby, done.</p>
+    </div>
+    <div class="footer-links">
+      <div>
+        <h4>Marketplace</h4>
+        <a onclick="Nav.go('home')">Browse books</a>
+        <a onclick="Nav.go('sell')">Sell a book</a>
+        <a onclick="Nav.go('mylistings')">My listings</a>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <a href="#">Safety tips</a>
+        <a href="#">Report a listing</a>
+        <a href="#">Contact us</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">© <span id="year"></span> OldBook4U. Buyers and sellers deal directly — trade carefully.</div>
+</footer>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

@@ -161,6 +161,16 @@ const Auth = {
     Auth.reflectLoggedOut();
     toast('Logged out.');
     Nav.go('home');
+  },
+  loginWithGoogle(){
+    // Redirects to Google, then back to this same page on success/failure.
+    // Requires: Auth > OAuth2 Providers > Google enabled in the Appwrite
+    // Console, with your Google Client ID/Secret entered there.
+    account.createOAuth2Session(
+      'google',
+      window.location.href,                         // success redirect
+      window.location.href.split('?')[0] + '?authFailed=1'  // failure redirect
+    );
   }
 };
 window.Auth = Auth;
@@ -461,6 +471,11 @@ document.getElementById('photoInput').addEventListener('change', (e) => {
     if (e.key === 'Enter') Books.applySearch();
   });
 });
+
+if (window.location.search.includes('authFailed=1')){
+  toast('Google login was cancelled or failed. Please try again.');
+  history.replaceState({}, '', window.location.pathname);
+}
 
 Auth.init();
 Books.loadPublic();
