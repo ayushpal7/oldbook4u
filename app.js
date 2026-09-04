@@ -14,7 +14,7 @@ import {
 
 const CONFIG = {
   endpoint: "https://cloud.appwrite.io/v1",   // change if self-hosting Appwrite
-  projectId: "69ae8e160036ee2e48ea`",
+  projectId: "69ae8e160036ee2e48ea",
   databaseId: "6a9acd3b003a9624fdc4",
   booksCollectionId: "books",
   bucketId: "6a9acc86000c8e9f031c",
