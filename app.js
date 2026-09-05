@@ -99,14 +99,18 @@ const Auth = {
   reflectLoggedIn(){
     document.getElementById('authBtn').textContent = currentUser.name?.split(' ')[0] || 'Account';
     document.getElementById('authBtn').onclick = () => Nav.go('mylistings');
+    document.getElementById('logoutBtn').style.display = 'inline-flex';
     document.getElementById('mobileAuthBtn').textContent = 'My account';
     document.getElementById('mobileAuthBtn').onclick = () => Nav.go('mylistings');
+    document.getElementById('mobileLogoutBtn').style.display = 'block';
   },
   reflectLoggedOut(){
     document.getElementById('authBtn').textContent = 'Log in';
     document.getElementById('authBtn').onclick = () => Auth.openModal();
+    document.getElementById('logoutBtn').style.display = 'none';
     document.getElementById('mobileAuthBtn').textContent = 'Log in';
     document.getElementById('mobileAuthBtn').onclick = () => Auth.openModal();
+    document.getElementById('mobileLogoutBtn').style.display = 'none';
   },
   openModal(){
     document.getElementById('authModal').classList.add('active');
@@ -156,11 +160,33 @@ const Auth = {
     return false;
   },
   async logout(){
-    await account.deleteSession('current');
+    try{
+      await account.deleteSession('current');
+    }catch(err){
+      // ignore logout errors if the session is already gone
+    }
     currentUser = null;
     Auth.reflectLoggedOut();
+    Auth.closeModal();
     toast('Logged out.');
     Nav.go('home');
+  },
+  async sendRecovery(){
+    const email = document.getElementById('loginEmail').value.trim();
+    const errEl = document.getElementById('loginError');
+    errEl.textContent = '';
+
+    if (!email){
+      errEl.textContent = 'Enter your email first, then tap Forgot password.';
+      return;
+    }
+
+    try{
+      await account.createRecovery(email, window.location.href.split('?')[0]);
+      toast('Password reset email sent. Check your inbox.');
+    }catch(err){
+      errEl.textContent = err.message || 'Could not start password reset.';
+    }
   },
   loginWithGoogle(){
     // Redirects to Google, then back to this same page on success/failure.
@@ -310,6 +336,7 @@ const Books = {
     e.preventDefault();
     if (!currentUser){
       toast('Please log in first to list a book.');
+      Auth.switchTab('login');
       Auth.openModal();
       return false;
     }
@@ -464,6 +491,16 @@ document.getElementById('photoInput').addEventListener('change', (e) => {
     box.innerHTML = `<img src="${ev.target.result}" alt="Preview"><input type="file" id="photoInput" accept="image/*" hidden required>`;
   };
   reader.readAsDataURL(file);
+});
+
+document.getElementById('sellSubmitBtn').addEventListener('click', () => {
+  if (!currentUser){
+    Auth.switchTab('login');
+    Auth.openModal();
+    toast('Please log in first to publish a listing.');
+    return;
+  }
+  document.getElementById('sellForm').requestSubmit();
 });
 
 ['navSearchInput','heroSearchInput'].forEach(id => {

@@ -31,6 +31,7 @@
 
     <div class="nav-actions">
       <button class="btn btn-ghost" id="authBtn" onclick="Auth.openModal()">Log in</button>
+      <button class="btn btn-ghost" id="logoutBtn" onclick="Auth.logout()" style="display:none;">Log out</button>
       <button class="btn btn-solid" onclick="Nav.go('sell')">+ Sell a book</button>
     </div>
 
@@ -42,6 +43,7 @@
     <a onclick="Nav.go('mylistings')">My Listings</a>
     <a onclick="Nav.go('sell')">Sell a book</a>
     <a id="mobileAuthBtn" onclick="Auth.openModal()">Log in</a>
+    <a id="mobileLogoutBtn" onclick="Auth.logout()" style="display:none;">Log out</a>
   </div>
 </header>
 
@@ -276,7 +278,7 @@
           </div>
         </div>
 
-        <button class="btn btn-solid btn-large" type="submit" id="sellSubmitBtn">Publish listing</button>
+        <button class="btn btn-solid btn-large" type="button" id="sellSubmitBtn">Publish listing</button>
       </form>
     </div>
   </section>
@@ -331,6 +333,7 @@
       </div>
       <button class="btn btn-solid w-full" type="submit">Log in</button>
       <div class="form-error" id="loginError"></div>
+      <button type="button" class="btn-link w-full" onclick="Auth.sendRecovery()">Forgot password?</button>
     </form>
 
     <form id="signupForm" class="modal-form" style="display:none;" onsubmit="return Auth.signup(event)">
