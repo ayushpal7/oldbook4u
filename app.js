@@ -13,10 +13,10 @@ import {
 } from "https://cdn.jsdelivr.net/npm/appwrite@16.0.2/+esm";
 
 const CONFIG = {
-  endpoint: "https://fra.cloud.appwrite.io/v1",   // change if self-hosting Appwrite
+  endpoint: "https://fra.cloud.appwrite.io/v1",   // Frankfurt region — matches your project
   projectId: "69ae8e160036ee2e48ea",
   databaseId: "6a9acd3b003a9624fdc4",
-  booksCollectionId: "books",
+  booksCollectionId: "data", // confirmed via `appwrite databases list-collections`
   bucketId: "6a9acc86000c8e9f031c",
 };
 
