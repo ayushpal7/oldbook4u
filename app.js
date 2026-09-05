@@ -13,7 +13,7 @@ import {
 } from "https://cdn.jsdelivr.net/npm/appwrite@16.0.2/+esm";
 
 const CONFIG = {
-  endpoint: "https://cloud.appwrite.io/v1",   // change if self-hosting Appwrite
+  endpoint: "https://fra.cloud.appwrite.io/v1",   // change if self-hosting Appwrite
   projectId: "69ae8e160036ee2e48ea",
   databaseId: "6a9acd3b003a9624fdc4",
   booksCollectionId: "books",
