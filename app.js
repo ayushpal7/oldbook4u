@@ -103,6 +103,8 @@ const Auth = {
     document.getElementById('mobileAuthBtn').textContent = 'My account';
     document.getElementById('mobileAuthBtn').onclick = () => Nav.go('mylistings');
     document.getElementById('mobileLogoutBtn').style.display = 'block';
+    const sellLoginHint = document.getElementById('sellLoginHint');
+    if (sellLoginHint) sellLoginHint.style.display = 'none';
   },
   reflectLoggedOut(){
     document.getElementById('authBtn').textContent = 'Log in';
@@ -111,6 +113,8 @@ const Auth = {
     document.getElementById('mobileAuthBtn').textContent = 'Log in';
     document.getElementById('mobileAuthBtn').onclick = () => Auth.openModal();
     document.getElementById('mobileLogoutBtn').style.display = 'none';
+    const sellLoginHint = document.getElementById('sellLoginHint');
+    if (sellLoginHint) sellLoginHint.style.display = 'block';
   },
   openModal(){
     document.getElementById('authModal').classList.add('active');
@@ -383,8 +387,20 @@ const Books = {
 
       toast('Listing published!');
       document.getElementById('sellForm').reset();
-      document.getElementById('uploadBox').classList.remove('has-image');
-      document.getElementById('uploadText').textContent = 'Click to upload a cover photo';
+      const uploadBox = document.getElementById('uploadBox');
+      const uploadText = document.getElementById('uploadText');
+      const uploadIcon = uploadBox.querySelector('.icon');
+      const uploadPreview = uploadBox.querySelector('.upload-preview');
+      uploadBox.classList.remove('has-image');
+      uploadBox.style.backgroundImage = '';
+      uploadBox.style.backgroundSize = '';
+      uploadBox.style.backgroundPosition = '';
+      if (uploadText) {
+        uploadText.style.display = 'inline';
+        uploadText.textContent = 'Click to upload a cover photo';
+      }
+      if (uploadIcon) uploadIcon.style.display = 'block';
+      if (uploadPreview) uploadPreview.remove();
       Nav.go('mylistings');
     }catch(err){
       toast('Could not publish: ' + err.message);
@@ -393,6 +409,27 @@ const Books = {
       btn.textContent = 'Publish listing';
     }
     return false;
+  },
+  handlePublishClick(){
+    if (!currentUser){
+      toast('Please log in first to publish a listing.');
+      Auth.switchTab('login');
+      Auth.openModal();
+      return;
+    }
+
+    const form = document.getElementById('sellForm');
+    if (!form){
+      toast('Sell form is not available right now.');
+      return;
+    }
+
+    if (!form.requestSubmit){
+      form.submit();
+      return;
+    }
+
+    form.requestSubmit();
   },
 
   // ---- seller's own listings ----
@@ -484,23 +521,28 @@ document.querySelectorAll('.cat-card').forEach(card => {
 document.getElementById('photoInput').addEventListener('change', (e) => {
   const file = e.target.files[0];
   const box = document.getElementById('uploadBox');
+  const text = document.getElementById('uploadText');
+  const icon = box.querySelector('.icon');
+  let preview = box.querySelector('.upload-preview');
   if (!file) return;
+
   const reader = new FileReader();
   reader.onload = (ev) => {
     box.classList.add('has-image');
-    box.innerHTML = `<img src="${ev.target.result}" alt="Preview"><input type="file" id="photoInput" accept="image/*" hidden required>`;
+    box.style.backgroundImage = `url('${ev.target.result}')`;
+    box.style.backgroundSize = 'cover';
+    box.style.backgroundPosition = 'center';
+    if (icon) icon.style.display = 'none';
+    if (text) text.style.display = 'none';
+    if (!preview){
+      preview = document.createElement('img');
+      preview.className = 'upload-preview';
+      preview.alt = 'Preview';
+      box.appendChild(preview);
+    }
+    preview.src = ev.target.result;
   };
   reader.readAsDataURL(file);
-});
-
-document.getElementById('sellSubmitBtn').addEventListener('click', () => {
-  if (!currentUser){
-    Auth.switchTab('login');
-    Auth.openModal();
-    toast('Please log in first to publish a listing.');
-    return;
-  }
-  document.getElementById('sellForm').requestSubmit();
 });
 
 ['navSearchInput','heroSearchInput'].forEach(id => {

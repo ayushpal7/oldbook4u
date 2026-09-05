@@ -278,7 +278,8 @@
           </div>
         </div>
 
-        <button class="btn btn-solid btn-large" type="button" id="sellSubmitBtn">Publish listing</button>
+        <div class="form-error" id="sellLoginHint" style="display:none; text-align:left; margin:4px 0 10px;">Log in first to publish a listing.</div>
+        <button class="btn btn-solid btn-large" type="button" id="sellSubmitBtn" onclick="Books.handlePublishClick()">Publish listing</button>
       </form>
     </div>
   </section>
