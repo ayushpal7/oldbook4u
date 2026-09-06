@@ -73,6 +73,11 @@
           <input id="heroSearchInput" placeholder="Try “Class 11 Physics” or “NEET biology”">
           <button class="btn btn-solid" onclick="Books.applySearch()">Search</button>
         </div>
+        <div class="location-prompt" id="locationPrompt">
+          <span class="location-pulse">⌖</span>
+          <span><strong id="locationStatus">Find books near you</strong><small id="locationDetail">Allow location for nearby-first results.</small></span>
+          <button type="button" onclick="Geo.request()" id="locationBtn">Use my location</button>
+        </div>
       </div>
     </div>
 
@@ -136,6 +141,7 @@
         <div class="filter-group">
           <label>Sort by</label>
           <select id="filterSort">
+            <option value="nearby">Nearest first</option>
             <option value="newest">Newest first</option>
             <option value="price_low">Price: low to high</option>
             <option value="price_high">Price: high to low</option>

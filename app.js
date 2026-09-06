@@ -56,6 +56,7 @@ const storage = new Storage(client);
 // --------------------------------------------------------------------------
 
 let currentUser = null;
+let currentLocation = null;
 let allBooks = [];       // cached results of the last public fetch
 let activeBook = null;   // book currently open in detail view
 
@@ -85,6 +86,63 @@ const Nav = {
   }
 };
 window.Nav = Nav;
+
+// ============================== LOCATION ==================================
+const Geo = {
+  request(){
+    const status = document.getElementById('locationStatus');
+    const detail = document.getElementById('locationDetail');
+    const button = document.getElementById('locationBtn');
+    if (!navigator.geolocation){
+      status.textContent = 'Location is unavailable';
+      detail.textContent = 'Your browser does not support location access.';
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = 'Finding you…';
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        currentLocation = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        };
+        const coordinateCount = allBooks.filter(book => Number.isFinite(Number(book.locationLat ?? book.latitude)) && Number.isFinite(Number(book.locationLng ?? book.longitude))).length;
+        document.getElementById('locationPrompt').classList.add('is-ready');
+        status.textContent = coordinateCount ? 'Showing books near you' : 'Location is ready';
+        detail.textContent = coordinateCount ? 'Nearest listings are being placed first.' : 'Add listing coordinates in Appwrite to enable nearest-first results.';
+        button.textContent = 'Location on';
+        button.disabled = false;
+        Books.sortNearby();
+        Books.renderGrid(allBooks, document.getElementById('booksGrid'), document.getElementById('booksEmpty'), true);
+      },
+      error => {
+        button.disabled = false;
+        button.textContent = 'Try again';
+        status.textContent = error.code === error.PERMISSION_DENIED ? 'Location is off' : 'Could not find your location';
+        detail.textContent = 'Allow access to put nearby books first.';
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+    );
+  },
+  distance(book){
+    const latitude = Number(book.locationLat ?? book.latitude);
+    const longitude = Number(book.locationLng ?? book.longitude);
+    if (!currentLocation || !Number.isFinite(latitude) || !Number.isFinite(longitude)) return Infinity;
+    const toRadians = value => value * Math.PI / 180;
+    const earthRadiusKm = 6371;
+    const deltaLat = toRadians(latitude - currentLocation.latitude);
+    const deltaLng = toRadians(longitude - currentLocation.longitude);
+    const a = Math.sin(deltaLat / 2) ** 2 + Math.cos(toRadians(currentLocation.latitude)) * Math.cos(toRadians(latitude)) * Math.sin(deltaLng / 2) ** 2;
+    return earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  },
+  label(book){
+    const distance = Geo.distance(book);
+    if (!Number.isFinite(distance)) return book.locationText || 'Nearby area';
+    return distance < 1 ? `${Math.round(distance * 1000)} m away` : `${distance.toFixed(1)} km away`;
+  }
+};
+window.Geo = Geo;
 
 // ============================== AUTH =======================================
 const Auth = {
@@ -249,6 +307,7 @@ const Books = {
       const queries = [ Query.equal('status', 'live'), Query.orderDesc('$createdAt'), Query.limit(60) ];
       const res = await databases.listDocuments(CONFIG.databaseId, CONFIG.booksCollectionId, queries);
       allBooks = res.documents;
+      Books.sortNearby();
       Books.renderGrid(allBooks, grid, empty, true);
       document.getElementById('resultsCount').textContent = res.total + ' book' + (res.total === 1 ? '' : 's');
     }catch(err){
@@ -277,7 +336,7 @@ const Books = {
         <div class="book-info">
           <div class="book-price">₹${book.price}</div>
           <div class="book-title">${Books.escape(book.title)}</div>
-          <div class="book-meta">📍 ${Books.escape(book.locationText)}</div>
+          <div class="book-meta">📍 ${Books.escape(Geo.label(book))}</div>
         </div>
       `;
       const cover = card.querySelector('.book-cover');
@@ -308,6 +367,11 @@ const Books = {
     }
   },
 
+  sortNearby(){
+    if (!currentLocation) return;
+    allBooks.sort((first, second) => Geo.distance(first) - Geo.distance(second));
+  },
+
   // ---- search + filters ----
   applySearch(){
     const q1 = document.getElementById('navSearchInput').value.trim();
@@ -335,6 +399,7 @@ const Books = {
       return true;
     });
 
+    if (sort === 'nearby') filtered.sort((a,b) => Geo.distance(a) - Geo.distance(b));
     if (sort === 'price_low') filtered.sort((a,b) => a.price - b.price);
     if (sort === 'price_high') filtered.sort((a,b) => b.price - a.price);
 
@@ -368,7 +433,7 @@ const Books = {
     document.getElementById('detailTitle').textContent = book.title;
     document.getElementById('detailPrice').textContent = '₹' + book.price;
     document.getElementById('detailCondition').textContent = book.condition;
-    document.getElementById('detailDistance').textContent = '📍 ' + book.locationText;
+    document.getElementById('detailDistance').textContent = '📍 ' + Geo.label(book);
     document.getElementById('detailNotes').textContent = book.notes || '';
     document.getElementById('sellerAvatar').textContent = (book.sellerName || '?').charAt(0).toUpperCase();
     document.getElementById('sellerName').textContent = book.sellerName;
@@ -421,18 +486,25 @@ const Books = {
         imageUrl: imageUrl,
         status: 'live',
       };
+      if (currentLocation){
+        data.locationLat = currentLocation.latitude;
+        data.locationLng = currentLocation.longitude;
+      }
 
-      await databases.createDocument(
-        CONFIG.databaseId,
-        CONFIG.booksCollectionId,
-        ID.unique(),
-        data,
-        [
-          Permission.read(Role.any()),
-          Permission.update(Role.user(currentUser.$id)),
-          Permission.delete(Role.user(currentUser.$id)),
-        ]
-      );
+      const permissions = [
+        Permission.read(Role.any()),
+        Permission.update(Role.user(currentUser.$id)),
+        Permission.delete(Role.user(currentUser.$id)),
+      ];
+      try{
+        await databases.createDocument(CONFIG.databaseId, CONFIG.booksCollectionId, ID.unique(), data, permissions);
+      }catch(err){
+        if (!currentLocation || !/attribute|unknown|invalid/i.test(err.message || '')) throw err;
+        delete data.locationLat;
+        delete data.locationLng;
+        await databases.createDocument(CONFIG.databaseId, CONFIG.booksCollectionId, ID.unique(), data, permissions);
+        toast('Listing published. Add location columns in Appwrite to enable nearby sorting.');
+      }
 
       toast('Listing published!');
       document.getElementById('sellForm').reset();
@@ -624,3 +696,8 @@ if (window.location.search.includes('authFailed=1')){
 
 Auth.init();
 Books.loadPublic();
+
+if (!sessionStorage.getItem('oldbook4u_location_asked')){
+  sessionStorage.setItem('oldbook4u_location_asked', '1');
+  window.setTimeout(() => Geo.request(), 900);
+}
