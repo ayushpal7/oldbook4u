@@ -78,7 +78,7 @@ const Nav = {
     Auth.closeAccountMenu();
     window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 
-    if (view === 'home') Books.loadPublic();
+    if (view === 'home' || view === 'browse') Books.loadPublic();
     if (view === 'mylistings') Books.loadMine();
   },
   toggleMobileMenu(){
@@ -114,7 +114,8 @@ const Geo = {
         button.textContent = 'Location on';
         button.disabled = false;
         Books.sortNearby();
-        Books.renderGrid(allBooks, document.getElementById('booksGrid'), document.getElementById('booksEmpty'), true);
+        const grid = document.getElementById('booksGrid');
+        if (grid) Books.renderGrid(allBooks, grid, document.getElementById('booksEmpty'), true);
       },
       error => {
         button.disabled = false;
@@ -301,6 +302,7 @@ const Books = {
   async loadPublic(){
     const grid = document.getElementById('booksGrid');
     const empty = document.getElementById('booksEmpty');
+    if (!grid || !empty) return;
     grid.innerHTML = '<p style="color:var(--muted);">Loading books…</p>';
 
     try{
@@ -405,6 +407,8 @@ const Books = {
 
     Books.renderGrid(filtered, document.getElementById('booksGrid'), document.getElementById('booksEmpty'), true);
     document.getElementById('resultsCount').textContent = filtered.length + ' book' + (filtered.length === 1 ? '' : 's');
+    document.getElementById('filterMenu').classList.remove('open');
+    document.getElementById('filterToggle').setAttribute('aria-expanded', 'false');
   },
 
   resetFilters(){
@@ -415,13 +419,23 @@ const Books = {
     document.getElementById('resultsHeading').textContent = 'All books nearby';
     Books.renderGrid(allBooks, document.getElementById('booksGrid'), document.getElementById('booksEmpty'), true);
     document.getElementById('resultsCount').textContent = allBooks.length + ' books';
+    document.getElementById('filterMenu').classList.remove('open');
+    document.getElementById('filterToggle').setAttribute('aria-expanded', 'false');
   },
 
   filterByCategory(cat){
+    Nav.go('browse');
     document.getElementById('filterCategory').value = cat;
     document.getElementById('resultsHeading').textContent = cat + ' books';
     Books.applyFilters();
-    document.querySelector('.browse-layout').scrollIntoView({ behavior:'smooth' });
+    document.querySelector('.browse-results').scrollIntoView({ behavior:'smooth' });
+  },
+
+  toggleFilters(){
+    const menu = document.getElementById('filterMenu');
+    const toggle = document.getElementById('filterToggle');
+    const isOpen = menu.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', String(isOpen));
   },
 
   // ---- detail view ----

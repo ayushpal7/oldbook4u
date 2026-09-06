@@ -245,16 +245,20 @@ img{ max-width:100%; display:block; }
 .cat-name{ font-size:13px; font-weight:700; color:var(--ink-soft); }
 
 /* ============ BROWSE LAYOUT ============ */
-.browse-layout{
-  display:grid; grid-template-columns:224px 1fr; gap:28px; align-items:start;
-  padding-top:10px;
-}
-.filters{
-  background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius);
-  padding:16px; position:sticky; top:88px; box-shadow:0 8px 20px rgba(28,42,56,.05);
-}
-.filters h3{ font-size:16px; margin-bottom:13px; display:flex; align-items:center; gap:7px; }
-.filters h3::before{ content:"✦"; color:var(--gold); font-size:13px; }
+.browse-page-head{ max-width:var(--maxw); margin:0 auto; padding:42px 24px 20px; display:flex; align-items:end; justify-content:space-between; gap:20px; }
+.browse-kicker{ color:var(--gold-deep); font-size:11px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+.browse-page-head .page-title{ margin-top:7px; }
+.browse-page-head .page-sub{ margin-bottom:0; }
+.filter-toggle{ display:inline-flex; align-items:center; gap:8px; border:1px solid var(--line); border-radius:999px; background:var(--paper-raised); color:var(--ink); padding:11px 16px; font:700 13px 'Public Sans',sans-serif; box-shadow:0 5px 14px rgba(28,42,56,.06); transition:background .2s ease, transform .2s ease, border-color .2s ease; }
+.filter-toggle:hover, .filter-toggle[aria-expanded="true"]{ background:#F1E8D4; border-color:var(--gold); transform:translateY(-1px); }
+.filter-menu{ max-width:var(--maxw); margin:0 auto; padding:0 24px; display:none; grid-template-columns:repeat(4,1fr); gap:14px; align-items:end; }
+.filter-menu.open{ display:grid; animation:filterDrop .18s ease both; }
+.filter-menu .filter-group{ margin-bottom:0; }
+.filter-actions{ display:flex; align-items:center; gap:10px; }
+.filter-actions .btn{ padding:9px 13px; font-size:13px; }
+.filter-actions .btn-link{ width:auto; padding:8px 0; }
+.browse-results{ max-width:var(--maxw); margin:0 auto; padding:20px 24px 60px; }
+@keyframes filterDrop{ from{ opacity:0; transform:translateY(-8px); } to{ opacity:1; transform:translateY(0); } }
 .filter-group{ margin-bottom:12px; }
 .filter-group label{ font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:block; margin-bottom:5px; }
 .filter-group select, .filter-group input{
@@ -262,11 +266,6 @@ img{ max-width:100%; display:block; }
   padding:8px 9px; font-size:13px; color:var(--ink); outline:none;
 }
 .filter-group select:focus, .filter-group input:focus{ border-color:var(--gold); }
-.filters .btn-outline{ transition:background .2s ease, color .2s ease, transform .2s ease; }
-.filters .btn-outline:hover{ transform:translateY(-1px); }
-.filters .btn-outline{ padding:10px 12px; font-size:13px; }
-.filters .btn-link{ padding:7px 0 0; font-size:12px; }
-
 .listings-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:20px; }
 .results-count{ font-size:13px; color:var(--ink-soft); }
 
@@ -536,12 +535,11 @@ img{ max-width:100%; display:block; }
   .nav-links, .nav-search{ display:none; }
   .nav-burger{ display:block; }
   .mobile-menu.active{ display:flex; }
-  .browse-layout{ grid-template-columns:1fr; }
-  .filters{ position:static; }
   .detail-grid{ grid-template-columns:1fr; }
   .detail-image{ position:static; aspect-ratio:16/10; }
   .cat-grid{ grid-template-columns:repeat(3,1fr); }
   .hero-art{ right:4%; opacity:.36; transform:translateY(-42%) scale(.84); transform-origin:right center; }
+  .filter-menu{ grid-template-columns:repeat(2,1fr); }
 }
 @media (max-width: 640px){
   .nav-inner{ padding:12px 16px; }
@@ -551,6 +549,11 @@ img{ max-width:100%; display:block; }
   .location-prompt{ width:100%; flex-wrap:wrap; }
   .location-prompt button{ margin-left:42px; }
   .section-wrap{ padding:32px 18px; }
+  .browse-page-head{ padding:32px 18px 16px; align-items:start; flex-direction:column; }
+  .browse-page-head .filter-toggle{ align-self:flex-start; }
+  .filter-menu{ grid-template-columns:1fr; padding:0 18px; }
+  .filter-actions{ justify-content:space-between; }
+  .browse-results{ padding:20px 18px 48px; }
   .form-grid{ grid-template-columns:1fr; }
   .field.span-2{ grid-column: span 1; }
   .cat-grid{ grid-template-columns:repeat(2,1fr); }

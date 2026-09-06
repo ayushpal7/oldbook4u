@@ -19,7 +19,7 @@
     </a>
 
     <nav class="nav-links">
-      <a onclick="Nav.go('home')">Browse</a>
+      <a onclick="Nav.go('browse')">Browse</a>
       <a onclick="Nav.go('mylistings')">My Listings</a>
       <a href="#categories-section" onclick="Nav.go('home')">Categories</a>
     </nav>
@@ -51,7 +51,7 @@
   </div>
 
   <div class="mobile-menu" id="mobileMenu">
-    <a onclick="Nav.go('home')">Browse</a>
+    <a onclick="Nav.go('browse')">Browse</a>
     <a onclick="Nav.go('mylistings')">My Listings</a>
     <a onclick="Nav.go('sell')">Sell a book</a>
     <a id="mobileAuthBtn" onclick="Auth.openModal()">Log in</a>
@@ -115,69 +115,25 @@
       </div>
     </div>
 
-    <div class="section-wrap browse-layout">
+  </section>
 
-      <aside class="filters">
-        <h3>Filters</h3>
-
-        <div class="filter-group">
-          <label>Category</label>
-          <select id="filterCategory">
-            <option value="">All categories</option>
-            <option>School</option>
-            <option>College</option>
-            <option>Entrance</option>
-            <option>Fiction</option>
-            <option>Non-Fiction</option>
-            <option>Other</option>
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <label>Condition</label>
-          <select id="filterCondition">
-            <option value="">Any condition</option>
-            <option>Like new</option>
-            <option>Good — light wear</option>
-            <option>Fair — used but complete</option>
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <label>Max price (₹)</label>
-          <input type="number" id="filterMaxPrice" placeholder="e.g. 300">
-        </div>
-
-        <div class="filter-group">
-          <label>Sort by</label>
-          <select id="filterSort">
-            <option value="nearby">Nearest first</option>
-            <option value="newest">Newest first</option>
-            <option value="price_low">Price: low to high</option>
-            <option value="price_high">Price: high to low</option>
-          </select>
-        </div>
-
-        <button class="btn btn-outline w-full" onclick="Books.applyFilters()">Apply filters</button>
-        <button class="btn-link w-full" onclick="Books.resetFilters()">Clear all</button>
-      </aside>
-
-      <div class="listings-col">
-        <div class="listings-head">
-          <h2 class="section-title no-margin" id="resultsHeading">All books nearby</h2>
-          <span class="results-count" id="resultsCount"></span>
-        </div>
-
-        <div class="grid" id="booksGrid">
-          <!-- book cards injected by app.js -->
-        </div>
-
-        <div class="empty-state" id="booksEmpty" style="display:none;">
-          <div class="big">📭</div>
-          <h3>No books match yet</h3>
-          <p>Try clearing a filter, or be the first to list one in this category.</p>
-        </div>
-      </div>
+  <!-- ============ BROWSE ============ -->
+  <section class="view" id="view-browse">
+    <div class="browse-page-head">
+      <div><span class="browse-kicker">OldBook4U marketplace</span><h1 class="page-title">Browse books</h1><p class="page-sub">Find a good read, a study essential, or the next book on your shelf.</p></div>
+      <button class="filter-toggle" id="filterToggle" onclick="Books.toggleFilters()" aria-expanded="false">☷ <span>Filters</span></button>
+    </div>
+    <div class="filter-menu" id="filterMenu">
+      <div class="filter-group"><label>Category</label><select id="filterCategory"><option value="">All categories</option><option>School</option><option>College</option><option>Entrance</option><option>Fiction</option><option>Non-Fiction</option><option>Other</option></select></div>
+      <div class="filter-group"><label>Condition</label><select id="filterCondition"><option value="">Any condition</option><option>Like new</option><option>Good — light wear</option><option>Fair — used but complete</option></select></div>
+      <div class="filter-group"><label>Max price (₹)</label><input type="number" id="filterMaxPrice" placeholder="e.g. 300"></div>
+      <div class="filter-group"><label>Sort by</label><select id="filterSort"><option value="nearby">Nearest first</option><option value="newest">Newest first</option><option value="price_low">Price: low to high</option><option value="price_high">Price: high to low</option></select></div>
+      <div class="filter-actions"><button class="btn btn-solid" onclick="Books.applyFilters()">Apply filters</button><button class="btn-link" onclick="Books.resetFilters()">Clear all</button></div>
+    </div>
+    <div class="browse-results">
+      <div class="listings-head"><h2 class="section-title no-margin" id="resultsHeading">All books nearby</h2><span class="results-count" id="resultsCount"></span></div>
+      <div class="grid" id="booksGrid"></div>
+      <div class="empty-state" id="booksEmpty" style="display:none;"><div class="big">📭</div><h3>No books match yet</h3><p>Try clearing a filter, or be the first to list one in this category.</p></div>
     </div>
   </section>
 
