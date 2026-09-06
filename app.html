@@ -30,8 +30,20 @@
     </div>
 
     <div class="nav-actions">
-      <button class="btn btn-ghost" id="authBtn" onclick="Auth.openModal()">Log in</button>
-      <button class="btn btn-ghost" id="logoutBtn" onclick="Auth.logout()" style="display:none;">Log out</button>
+      <div class="account-menu" id="accountMenu" style="display:none;">
+        <button class="account-trigger" id="authBtn" onclick="Auth.toggleAccountMenu()" aria-expanded="false" aria-controls="accountDropdown">
+          <span class="account-avatar" id="accountAvatar">?</span>
+          <span id="accountLabel">Account</span>
+          <span class="account-chevron">⌄</span>
+        </button>
+        <div class="account-dropdown" id="accountDropdown">
+          <div class="account-heading" id="accountHeading">Your account</div>
+          <button onclick="Auth.goToListings()">My listings</button>
+          <button onclick="Auth.goToSell()">Sell a book</button>
+          <button class="account-danger" onclick="Auth.logout()">Log out</button>
+        </div>
+      </div>
+      <button class="btn btn-ghost" id="loginBtn" onclick="Auth.openModal()">Log in</button>
       <button class="btn btn-solid" onclick="Nav.go('sell')">+ Sell a book</button>
     </div>
 

@@ -58,6 +58,7 @@ img{ max-width:100%; display:block; }
   position:sticky; top:0; z-index:50;
   background:var(--paper-raised);
   border-bottom:1px solid var(--line);
+  box-shadow:0 4px 18px rgba(28,42,56,0.04);
 }
 .nav-inner{
   max-width:var(--maxw); margin:0 auto;
@@ -87,6 +88,31 @@ img{ max-width:100%; display:block; }
 .s-icon{ color:var(--muted); font-size:14px; }
 
 .nav-actions{ display:flex; align-items:center; gap:10px; flex:none; }
+.account-menu{ position:relative; }
+.account-trigger{
+  display:flex; align-items:center; gap:8px; border:1px solid var(--line); border-radius:999px;
+  background:var(--paper-raised); color:var(--ink); padding:5px 10px 5px 6px; font-size:13px; font-weight:700;
+}
+.account-trigger:hover, .account-menu.open .account-trigger{ border-color:var(--gold); background:#F6F0E1; }
+.account-avatar{
+  width:27px; height:27px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  background:var(--ink); color:var(--paper-raised); font-family:'Fraunces',serif; font-size:12px;
+}
+.account-chevron{ color:var(--muted); font-size:16px; line-height:1; margin-left:2px; }
+.account-dropdown{
+  display:none; position:absolute; top:calc(100% + 10px); right:0; width:190px; padding:8px;
+  background:var(--paper-raised); border:1px solid var(--line); border-radius:10px;
+  box-shadow:0 14px 30px rgba(28,42,56,0.14); animation:dropdownIn .14s ease;
+}
+.account-menu.open .account-dropdown{ display:block; }
+.account-heading{ padding:8px 10px 9px; color:var(--muted); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; border-bottom:1px solid var(--line-soft); }
+.account-dropdown button{
+  display:block; width:100%; border:0; border-radius:6px; background:none; color:var(--ink); text-align:left;
+  padding:10px; font-size:13.5px; font-weight:600;
+}
+.account-dropdown button:hover{ background:var(--paper); }
+.account-dropdown .account-danger{ color:var(--brick); border-top:1px solid var(--line-soft); margin-top:4px; }
+@keyframes dropdownIn{ from{ opacity:0; transform:translateY(-4px); } to{ opacity:1; transform:translateY(0); } }
 .nav-burger{ display:none; background:none; border:none; font-size:20px; color:var(--ink); }
 
 .mobile-menu{
@@ -170,6 +196,7 @@ img{ max-width:100%; display:block; }
 .book-card:hover{ transform:translateY(-3px); box-shadow:0 10px 24px rgba(28,42,56,0.10); }
 .book-card .spine{ position:absolute; left:0; top:0; bottom:0; width:4px; z-index:2; }
 .book-cover{ height:190px; background-size:cover; background-position:center; position:relative; border-bottom:1px solid var(--line); background-color:var(--line-soft); }
+.book-cover.sold-cover{ opacity:.55; }
 .badge-sold{
   position:absolute; top:10px; left:10px; background:var(--brick); color:#fff;
   font-size:10.5px; font-weight:700; letter-spacing:.03em; padding:4px 9px; border-radius:5px; z-index:2;
@@ -332,6 +359,39 @@ img{ max-width:100%; display:block; }
 .footer-links a:hover{ color:#fff; }
 .footer-bottom{ border-top:1px solid rgba(255,255,255,0.1); text-align:center; padding:18px; font-size:12.5px; color:#7C8792; }
 
+/* ============ LEGAL PAGES ============ */
+.legal-body{ min-height:100vh; }
+.legal-page{ max-width:980px; margin:0 auto; padding:44px 24px 72px; }
+.legal-hero{
+  background:var(--ink); color:var(--paper-raised); border-radius:14px; padding:34px 38px 36px;
+  position:relative; overflow:hidden; margin-bottom:22px;
+}
+.legal-hero::after{
+  content:""; position:absolute; width:220px; height:220px; right:-70px; top:-90px;
+  border:1px solid rgba(184,132,43,.55); border-radius:50%; box-shadow:0 0 0 18px rgba(184,132,43,.08), 0 0 0 36px rgba(184,132,43,.05);
+}
+.legal-eyebrow{ color:#D6B36A; font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+.legal-title{ color:#fff; font-size:clamp(30px,5vw,44px); line-height:1.1; margin:12px 0 10px; }
+.legal-updated{ color:#C7CFD6; font-size:13px; margin:0; }
+.legal-content{
+  background:var(--paper-raised); border:1px solid var(--line); border-radius:14px; padding:42px 48px;
+  box-shadow:0 12px 30px rgba(28,42,56,0.05);
+}
+.legal-content > p:first-child{ font-size:16px; color:var(--ink); }
+.legal-content p{ color:var(--ink-soft); font-size:14.5px; line-height:1.75; margin:0 0 16px; }
+.legal-content h2{ color:var(--ink); font-size:22px; margin:34px 0 12px; padding-top:8px; border-top:1px solid var(--line-soft); }
+.legal-content h3{ color:var(--gold-deep); font-size:17px; margin:24px 0 8px; }
+.legal-content ul{ margin:0 0 18px 20px; color:var(--ink-soft); }
+.legal-content li{ padding:4px 0; font-size:14px; line-height:1.6; }
+.legal-content strong{ color:var(--ink); }
+.legal-content hr{ border:0; border-top:1px solid var(--line); margin:28px 0; }
+.legal-content a{ color:var(--gold-deep); text-decoration:underline; font-weight:700; }
+.legal-contact{ background:#F1E8D4; border-left:3px solid var(--gold); border-radius:8px; padding:18px 20px; margin-top:24px; }
+.legal-contact p{ margin:0 0 8px; }
+.legal-contact p:last-child{ margin-bottom:0; }
+.legal-note{ color:var(--muted) !important; font-size:13px !important; }
+.legal-footer{ display:flex; justify-content:space-between; gap:16px; max-width:980px; margin:0 auto; padding:0 24px 30px; color:var(--muted); font-size:12px; }
+
 /* ============ RESPONSIVE ============ */
 @media (max-width: 980px){
   .nav-links, .nav-search{ display:none; }
@@ -345,7 +405,7 @@ img{ max-width:100%; display:block; }
 }
 @media (max-width: 640px){
   .nav-inner{ padding:12px 16px; }
-  .nav-actions .btn-ghost{ display:none; }
+  .nav-actions .btn-ghost, .account-menu{ display:none !important; }
   .hero{ padding:44px 18px 52px; }
   .section-wrap{ padding:32px 18px; }
   .form-grid{ grid-template-columns:1fr; }
@@ -354,4 +414,9 @@ img{ max-width:100%; display:block; }
   .contact-row{ flex-direction:column; }
   .footer-inner{ flex-direction:column; }
   .footer-links{ gap:32px; }
+  .legal-page{ padding:24px 16px 48px; }
+  .legal-hero{ padding:28px 24px; border-radius:10px; }
+  .legal-content{ padding:28px 22px; border-radius:10px; }
+  .legal-content h2{ font-size:20px; margin-top:28px; }
+  .legal-footer{ flex-direction:column; padding:0 16px 24px; }
 }

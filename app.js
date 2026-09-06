@@ -74,6 +74,7 @@ const Nav = {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById('view-' + view).classList.add('active');
     document.getElementById('mobileMenu').classList.remove('active');
+    Auth.closeAccountMenu();
     window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 
     if (view === 'home') Books.loadPublic();
@@ -97,24 +98,53 @@ const Auth = {
     }
   },
   reflectLoggedIn(){
-    document.getElementById('authBtn').textContent = currentUser.name?.split(' ')[0] || 'Account';
-    document.getElementById('authBtn').onclick = () => Nav.go('mylistings');
-    document.getElementById('logoutBtn').style.display = 'inline-flex';
+    const accountMenu = document.getElementById('accountMenu');
+    const accountLabel = document.getElementById('accountLabel');
+    const accountAvatar = document.getElementById('accountAvatar');
+    const accountHeading = document.getElementById('accountHeading');
+    const displayName = currentUser.name?.trim() || 'Account';
+    accountMenu.style.display = 'block';
+    accountLabel.textContent = displayName.split(' ')[0];
+    accountAvatar.textContent = displayName.charAt(0).toUpperCase();
+    accountHeading.textContent = displayName;
+    document.getElementById('loginBtn').style.display = 'none';
     document.getElementById('mobileAuthBtn').textContent = 'My account';
     document.getElementById('mobileAuthBtn').onclick = () => Nav.go('mylistings');
     document.getElementById('mobileLogoutBtn').style.display = 'block';
+    const publishBtn = document.getElementById('sellSubmitBtn');
+    if (publishBtn) publishBtn.textContent = 'Publish listing';
     const sellLoginHint = document.getElementById('sellLoginHint');
     if (sellLoginHint) sellLoginHint.style.display = 'none';
   },
   reflectLoggedOut(){
-    document.getElementById('authBtn').textContent = 'Log in';
-    document.getElementById('authBtn').onclick = () => Auth.openModal();
-    document.getElementById('logoutBtn').style.display = 'none';
+    document.getElementById('accountMenu').style.display = 'none';
+    document.getElementById('loginBtn').style.display = 'inline-flex';
     document.getElementById('mobileAuthBtn').textContent = 'Log in';
     document.getElementById('mobileAuthBtn').onclick = () => Auth.openModal();
     document.getElementById('mobileLogoutBtn').style.display = 'none';
+    const publishBtn = document.getElementById('sellSubmitBtn');
+    if (publishBtn) publishBtn.textContent = 'Log in to publish';
     const sellLoginHint = document.getElementById('sellLoginHint');
     if (sellLoginHint) sellLoginHint.style.display = 'block';
+  },
+  toggleAccountMenu(){
+    const menu = document.getElementById('accountMenu');
+    const isOpen = menu.classList.toggle('open');
+    document.getElementById('authBtn').setAttribute('aria-expanded', String(isOpen));
+  },
+  closeAccountMenu(){
+    const menu = document.getElementById('accountMenu');
+    if (!menu) return;
+    menu.classList.remove('open');
+    document.getElementById('authBtn').setAttribute('aria-expanded', 'false');
+  },
+  goToListings(){
+    Auth.closeAccountMenu();
+    Nav.go('mylistings');
+  },
+  goToSell(){
+    Auth.closeAccountMenu();
+    Nav.go('sell');
   },
   openModal(){
     document.getElementById('authModal').classList.add('active');
@@ -171,6 +201,7 @@ const Auth = {
     }
     currentUser = null;
     Auth.reflectLoggedOut();
+    Auth.closeAccountMenu();
     Auth.closeModal();
     toast('Logged out.');
     Nav.go('home');
@@ -221,7 +252,10 @@ const Books = {
       Books.renderGrid(allBooks, grid, empty, true);
       document.getElementById('resultsCount').textContent = res.total + ' book' + (res.total === 1 ? '' : 's');
     }catch(err){
-      grid.innerHTML = `<p style="color:var(--brick);">Couldn't load listings. Check your Appwrite config in app.js. (${err.message})</p>`;
+      const error = document.createElement('p');
+      error.style.color = 'var(--brick)';
+      error.textContent = `Couldn't load listings. Check your Appwrite config in app.js. (${err.message || 'Unknown error'})`;
+      grid.replaceChildren(error);
     }
   },
 
@@ -237,7 +271,7 @@ const Books = {
       card.className = 'book-card';
       card.innerHTML = `
         <div class="spine" style="background:${Books.spineColor(book.category)}"></div>
-        <div class="book-cover" style="background-image:url('${book.imageUrl}')">
+        <div class="book-cover">
           <button class="fav" onclick="event.stopPropagation()">♡</button>
         </div>
         <div class="book-info">
@@ -246,6 +280,9 @@ const Books = {
           <div class="book-meta">📍 ${Books.escape(book.locationText)}</div>
         </div>
       `;
+      const cover = card.querySelector('.book-cover');
+      const safeImageUrl = Books.safeImageUrl(book.imageUrl);
+      if (safeImageUrl) cover.style.backgroundImage = `url("${safeImageUrl}")`;
       if (clickable) card.onclick = () => Books.openDetail(book);
       container.appendChild(card);
     });
@@ -260,6 +297,15 @@ const Books = {
     const d = document.createElement('div');
     d.textContent = str || '';
     return d.innerHTML;
+  },
+
+  safeImageUrl(value){
+    try{
+      const url = new URL(value);
+      return ['https:', 'http:'].includes(url.protocol) ? url.href : '';
+    }catch(err){
+      return '';
+    }
   },
 
   // ---- search + filters ----
@@ -316,7 +362,8 @@ const Books = {
   // ---- detail view ----
   openDetail(book){
     activeBook = book;
-    document.getElementById('detailImage').style.backgroundImage = `url('${book.imageUrl}')`;
+    const safeImageUrl = Books.safeImageUrl(book.imageUrl);
+    document.getElementById('detailImage').style.backgroundImage = safeImageUrl ? `url("${safeImageUrl}")` : '';
     document.getElementById('detailCategory').textContent = book.category;
     document.getElementById('detailTitle').textContent = book.title;
     document.getElementById('detailPrice').textContent = '₹' + book.price;
@@ -348,6 +395,8 @@ const Books = {
     const btn = document.getElementById('sellSubmitBtn');
     const file = document.getElementById('photoInput').files[0];
     if (!file){ toast('Please add a photo of the book.'); return false; }
+    if (!file.type.startsWith('image/')){ toast('Please choose an image file.'); return false; }
+    if (file.size > 5 * 1024 * 1024){ toast('Image must be smaller than 5 MB.'); return false; }
 
     btn.disabled = true;
     btn.textContent = 'Publishing…';
@@ -359,14 +408,14 @@ const Books = {
 
       // 2. create the document — only this user can edit/delete it later
       const data = {
-        title: document.getElementById('fTitle').value,
+        title: document.getElementById('fTitle').value.trim().slice(0, 200),
         price: parseInt(document.getElementById('fPrice').value, 10),
         category: document.getElementById('fCategory').value,
         condition: document.getElementById('fCondition').value,
-        locationText: document.getElementById('fLocation').value,
-        sellerName: document.getElementById('fName').value,
-        sellerPhone: document.getElementById('fPhone').value,
-        notes: document.getElementById('fNotes').value,
+        locationText: document.getElementById('fLocation').value.trim().slice(0, 150),
+        sellerName: document.getElementById('fName').value.trim().slice(0, 100),
+        sellerPhone: document.getElementById('fPhone').value.trim().slice(0, 20),
+        notes: document.getElementById('fNotes').value.trim().slice(0, 1000),
         sellerId: currentUser.$id,
         imageId: uploaded.$id,
         imageUrl: imageUrl,
@@ -412,6 +461,12 @@ const Books = {
   },
   handlePublishClick(){
     if (!currentUser){
+      const sellLoginHint = document.getElementById('sellLoginHint');
+      if (sellLoginHint) {
+        sellLoginHint.textContent = 'Log in first to publish a listing.';
+        sellLoginHint.style.display = 'block';
+        sellLoginHint.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
       toast('Please log in first to publish a listing.');
       Auth.switchTab('login');
       Auth.openModal();
@@ -465,7 +520,7 @@ const Books = {
         const card = document.createElement('div');
         card.className = 'book-card mylisting-card';
         card.innerHTML = `
-          <div class="book-cover" style="background-image:url('${book.imageUrl}'); ${book.status === 'sold' ? 'opacity:.55' : ''}">
+          <div class="book-cover${book.status === 'sold' ? ' sold-cover' : ''}">
             ${book.status === 'sold' ? '<div class="badge-sold">SOLD</div>' : ''}
           </div>
           <div class="book-info">
@@ -478,13 +533,19 @@ const Books = {
             <button class="laction del-btn">Delete</button>
           </div>
         `;
+        const cover = card.querySelector('.book-cover');
+        const safeImageUrl = Books.safeImageUrl(book.imageUrl);
+        if (safeImageUrl) cover.style.backgroundImage = `url("${safeImageUrl}")`;
         const soldBtn = card.querySelector('.sold-btn');
         if (soldBtn) soldBtn.onclick = () => Books.markSold(book.$id);
         card.querySelector('.del-btn').onclick = () => Books.deleteListing(book.$id);
         grid.appendChild(card);
       });
     }catch(err){
-      grid.innerHTML = `<p style="color:var(--brick);">Couldn't load your listings. (${err.message})</p>`;
+      const error = document.createElement('p');
+      error.style.color = 'var(--brick)';
+      error.textContent = `Couldn't load your listings. (${err.message || 'Unknown error'})`;
+      grid.replaceChildren(error);
     }
   },
 
@@ -516,6 +577,11 @@ document.getElementById('year').textContent = new Date().getFullYear();
 
 document.querySelectorAll('.cat-card').forEach(card => {
   card.addEventListener('click', () => Books.filterByCategory(card.dataset.cat));
+});
+
+document.addEventListener('click', (event) => {
+  const accountMenu = document.getElementById('accountMenu');
+  if (accountMenu && !accountMenu.contains(event.target)) Auth.closeAccountMenu();
 });
 
 document.getElementById('photoInput').addEventListener('change', (e) => {
