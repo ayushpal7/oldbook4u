@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact OldBook4U</title>
+<meta name="description" content="Contact OldBook4U support.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700&family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="contact-body">
+<header class="navbar">
+  <div class="nav-inner">
+    <a href="app.html" class="logo"><span class="mark"></span> OldBook4U</a>
+    <nav class="nav-links"><a href="app.html">Browse</a><a href="tos.html">Terms</a><a href="privacypolicy.html">Privacy</a></nav>
+    <div class="nav-actions"><a class="btn btn-solid" href="app.html">Open marketplace</a></div>
+  </div>
+</header>
+<main class="contact-page">
+  <section class="contact-intro">
+    <span class="contact-eyebrow">OldBook4U / Support</span>
+    <h1>Let’s sort it out.</h1>
+    <p>Questions about an account, listing, or safety? Complete the form and Gmail will open with a ready-to-review message.</p>
+    <a class="contact-email" href="mailto:support@oldbook4u.com">support@oldbook4u.com</a>
+  </section>
+  <section class="contact-layout">
+    <div class="contact-note">
+      <span class="contact-note-mark">✦</span>
+      <h2>Before you write</h2>
+      <p>Never share passwords, OTPs, UPI PINs, or payment details. OldBook4U does not hold payments or arrange delivery.</p>
+      <div class="contact-note-links"><a href="privacypolicy.html">Privacy policy <span>↗</span></a><a href="tos.html">Terms of service <span>↗</span></a></div>
+    </div>
+    <form class="contact-form" id="contactForm">
+      <div class="contact-form-heading"><span>Send a message</span><small>Gmail opens for manual sending</small></div>
+      <div class="contact-form-grid">
+        <label class="field"><span>Your name</span><input id="contactName" maxlength="100" required></label>
+        <label class="field"><span>Your email</span><input id="contactEmail" type="email" maxlength="160" required></label>
+        <label class="field"><span>Phone (optional)</span><input id="contactPhone" type="tel" maxlength="20"></label>
+        <label class="field"><span>Topic</span><select id="contactTopic" required><option value="">Choose a topic</option><option>Account help</option><option>Listing or seller report</option><option>Safety concern</option><option>Technical issue</option><option>General question</option></select></label>
+        <label class="field field-full"><span>Message</span><textarea id="contactMessage" maxlength="2000" required></textarea></label>
+      </div>
+      <button class="btn btn-solid btn-large" type="submit">Open Gmail compose <span>↗</span></button>
+      <p class="contact-form-foot">You’ll review and send the email from your own Gmail account.</p>
+    </form>
+  </section>
+</main>
+<footer class="legal-footer contact-footer"><span>© 2026 OldBook4U</span><span><a href="contact.html">Contact</a><a href="privacypolicy.html">Privacy</a><a href="tos.html">Terms</a></span></footer>
+<script>
+document.getElementById('contactForm').addEventListener('submit', function (event) {
+  event.preventDefault();
+  const fields = id => document.getElementById(id).value.trim();
+  const topic = fields('contactTopic');
+  const body = ['Name: ' + fields('contactName'), 'Email: ' + fields('contactEmail'), fields('contactPhone') ? 'Phone: ' + fields('contactPhone') : '', 'Topic: ' + topic, '', fields('contactMessage')].filter(Boolean).join('\n');
+  const url = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent('support@oldbook4u.com') + '&su=' + encodeURIComponent('[OldBook4U] ' + topic) + '&body=' + encodeURIComponent(body);
+  window.open(url, '_blank', 'noopener,noreferrer');
+});
+</script>
+</body>
+</html>

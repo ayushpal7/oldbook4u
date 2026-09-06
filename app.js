@@ -110,7 +110,7 @@ const Geo = {
         const coordinateCount = allBooks.filter(book => Number.isFinite(Number(book.locationLat ?? book.latitude)) && Number.isFinite(Number(book.locationLng ?? book.longitude))).length;
         document.getElementById('locationPrompt').classList.add('is-ready');
         status.textContent = coordinateCount ? 'Showing books near you' : 'Location is ready';
-        detail.textContent = coordinateCount ? 'Nearest listings are being placed first.' : 'Add listing coordinates in Appwrite to enable nearest-first results.';
+        detail.textContent = coordinateCount ? 'Nearest listings are being placed first.' : 'Nearby results will improve as more sellers share their location.';
         button.textContent = 'Location on';
         button.disabled = false;
         Books.sortNearby();
