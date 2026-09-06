@@ -647,6 +647,20 @@ window.Books = Books;
 // ============================== INIT =======================================
 document.getElementById('year').textContent = new Date().getFullYear();
 
+const snowLayer = document.getElementById('heroSnow');
+if (snowLayer && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  for (let index = 0; index < 34; index += 1){
+    const flake = document.createElement('span');
+    flake.className = 'snowflake';
+    flake.style.left = `${Math.random() * 100}%`;
+    flake.style.setProperty('--snow-size', `${2 + Math.random() * 5}px`);
+    flake.style.setProperty('--snow-opacity', `${0.35 + Math.random() * 0.55}`);
+    flake.style.setProperty('--snow-duration', `${7 + Math.random() * 9}s`);
+    flake.style.setProperty('--snow-delay', `${Math.random() * -14}s`);
+    snowLayer.appendChild(flake);
+  }
+}
+
 document.querySelectorAll('.cat-card').forEach(card => {
   card.addEventListener('click', () => Books.filterByCategory(card.dataset.cat));
 });

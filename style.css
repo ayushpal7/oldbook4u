@@ -125,8 +125,9 @@ img{ max-width:100%; display:block; }
 /* ============ HERO ============ */
 .hero{
   background:
-    radial-gradient(circle at 85% 20%, rgba(184,132,43,0.14), transparent 45%),
-    var(--ink);
+    radial-gradient(ellipse at 72% 18%, rgba(66,196,190,.23), transparent 34%),
+    radial-gradient(ellipse at 18% 100%, rgba(184,132,43,.16), transparent 38%),
+    linear-gradient(135deg, #101D2A 0%, #172A3A 48%, #102B36 100%);
   color:var(--paper-raised);
   padding:64px 24px 72px;
   position:relative;
@@ -149,8 +150,24 @@ img{ max-width:100%; display:block; }
     radial-gradient(circle, rgba(255,255,255,.3) 0 1px, transparent 1.5px);
   background-size:150px 190px, 230px 280px, 310px 230px;
   background-position:20px 0, 80px 60px, 150px 20px;
-  opacity:.16;
+  opacity:.2;
   animation:paperDrift 24s linear infinite;
+}
+.hero-snow{
+  position:absolute; inset:0; z-index:1; pointer-events:none; overflow:hidden;
+  background-image:linear-gradient(rgba(92,221,213,.11) 1px, transparent 1px), linear-gradient(90deg, rgba(92,221,213,.11) 1px, transparent 1px);
+  background-size:58px 58px; transform:perspective(420px) rotateX(58deg) scale(1.8); transform-origin:50% 100%;
+  opacity:.28; mask-image:linear-gradient(to top, rgba(0,0,0,.9), transparent 72%);
+  animation:gridFlow 12s linear infinite;
+}
+.hero-snow::after{
+  content:""; position:absolute; inset:0; background:radial-gradient(ellipse at center bottom, rgba(67,224,214,.2), transparent 58%);
+  animation:auroraPulse 5s ease-in-out infinite alternate;
+}
+.snowflake{
+  position:absolute; top:-18px; width:var(--snow-size); height:var(--snow-size); border-radius:50%;
+  background:#E9FFFF; box-shadow:0 0 8px rgba(210,255,255,.9); opacity:var(--snow-opacity);
+  animation:snowFall var(--snow-duration) linear var(--snow-delay) infinite;
 }
 .hero-inner{ max-width:760px; margin:0 auto; text-align:left; position:relative; z-index:1; }
 .hero-art{ position:absolute; z-index:1; right:8%; top:50%; width:270px; height:245px; transform:translateY(-42%); animation:artFloat 5s ease-in-out infinite; }
@@ -296,6 +313,9 @@ img{ max-width:100%; display:block; }
 @keyframes heroAtmosphere{ from{ background-position:80% 20%, 0 0; } to{ background-position:100% 35%, 0 0; } }
 @keyframes orbit{ to{ transform:rotate(360deg); } }
 @keyframes paperDrift{ from{ transform:translate3d(0,-4%,0); } to{ transform:translate3d(24px,4%,0); } }
+@keyframes snowFall{ 0%{ transform:translate3d(0,-20px,0) rotate(0); } 45%{ margin-left:24px; } 100%{ transform:translate3d(-18px,560px,0) rotate(180deg); } }
+@keyframes gridFlow{ from{ background-position:0 0, 0 0; } to{ background-position:0 58px, 58px 0; } }
+@keyframes auroraPulse{ from{ opacity:.3; transform:scaleX(.92); } to{ opacity:.9; transform:scaleX(1.08); } }
 @keyframes artFloat{ 0%,100%{ margin-top:0; } 50%{ margin-top:-8px; } }
 @keyframes bookTilt{ 0%,100%{ filter:brightness(1); } 50%{ filter:brightness(1.08); } }
 @keyframes twinkle{ 0%,100%{ opacity:.35; transform:scale(.8); } 50%{ opacity:1; transform:scale(1.15); } }
@@ -303,6 +323,8 @@ img{ max-width:100%; display:block; }
 @media (prefers-reduced-motion: reduce){
   *, *::before, *::after{ animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.01ms !important; }
   .hero-art{ transform:translateY(-42%); }
+  .hero-snow{ animation:none; }
+  .snowflake{ animation:none; display:none; }
 }
 
 /* ============ DETAIL VIEW ============ */
