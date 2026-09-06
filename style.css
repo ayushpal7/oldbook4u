@@ -153,6 +153,20 @@ img{ max-width:100%; display:block; }
   animation:paperDrift 24s linear infinite;
 }
 .hero-inner{ max-width:760px; margin:0 auto; text-align:left; position:relative; z-index:1; }
+.hero-art{ position:absolute; z-index:1; right:8%; top:50%; width:270px; height:245px; transform:translateY(-42%); animation:artFloat 5s ease-in-out infinite; }
+.shelf-label{ position:absolute; right:0; top:0; color:#D6B36A; font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.label-dot{ display:inline-block; width:7px; height:7px; margin-right:6px; border-radius:50%; background:#D6B36A; box-shadow:0 0 0 5px rgba(214,179,106,.12); }
+.book{ position:absolute; bottom:28px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,.28); border-radius:4px 7px 7px 4px; box-shadow:12px 14px 20px rgba(0,0,0,.22); transform-origin:bottom center; }
+.book::before{ content:""; position:absolute; left:8px; top:8px; bottom:8px; width:2px; background:rgba(255,255,255,.3); }
+.book span{ writing-mode:vertical-rl; transform:rotate(180deg); font:700 10px 'Public Sans',sans-serif; letter-spacing:.13em; opacity:.86; }
+.book-ochre{ right:80px; width:58px; height:172px; color:#FFF3D3; background:var(--gold-deep); transform:rotate(-8deg); animation:bookTilt 4.5s ease-in-out infinite; }
+.book-cream{ right:30px; width:70px; height:188px; color:var(--ink); background:#E9D9B5; transform:rotate(7deg); animation:bookTilt 4.5s .45s ease-in-out infinite reverse; }
+.book-brick{ right:132px; width:52px; height:142px; color:#F9EBDC; background:var(--brick); transform:rotate(-17deg); animation:bookTilt 4.5s .8s ease-in-out infinite; }
+.bookmark{ position:absolute; right:45px; top:44px; width:18px; height:78px; background:var(--sage); transform:rotate(9deg); box-shadow:3px 4px 8px rgba(0,0,0,.15); }
+.bookmark::after{ content:""; position:absolute; bottom:-1px; left:0; border-left:9px solid transparent; border-right:9px solid transparent; border-bottom:10px solid var(--ink); }
+.art-star{ position:absolute; color:#D6B36A; font-family:Georgia,serif; }
+.star-one{ left:18px; top:58px; font-size:24px; animation:twinkle 2.4s ease-in-out infinite; }
+.star-two{ left:52px; top:22px; font-size:30px; animation:twinkle 2.4s .7s ease-in-out infinite; }
 .hero h1{ font-size:clamp(30px, 4.4vw, 46px); line-height:1.15; color:#fff; max-width:640px; animation:riseIn .7s .08s both cubic-bezier(.2,.8,.2,1); }
 .hero p{ margin-top:16px; font-size:16px; color:#C7CFD6; max-width:520px; animation:riseIn .7s .2s both cubic-bezier(.2,.8,.2,1); }
 .hero-search{
@@ -282,9 +296,13 @@ img{ max-width:100%; display:block; }
 @keyframes heroAtmosphere{ from{ background-position:80% 20%, 0 0; } to{ background-position:100% 35%, 0 0; } }
 @keyframes orbit{ to{ transform:rotate(360deg); } }
 @keyframes paperDrift{ from{ transform:translate3d(0,-4%,0); } to{ transform:translate3d(24px,4%,0); } }
+@keyframes artFloat{ 0%,100%{ margin-top:0; } 50%{ margin-top:-8px; } }
+@keyframes bookTilt{ 0%,100%{ filter:brightness(1); } 50%{ filter:brightness(1.08); } }
+@keyframes twinkle{ 0%,100%{ opacity:.35; transform:scale(.8); } 50%{ opacity:1; transform:scale(1.15); } }
 
 @media (prefers-reduced-motion: reduce){
   *, *::before, *::after{ animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.01ms !important; }
+  .hero-art{ transform:translateY(-42%); }
 }
 
 /* ============ DETAIL VIEW ============ */
@@ -498,11 +516,13 @@ img{ max-width:100%; display:block; }
   .detail-grid{ grid-template-columns:1fr; }
   .detail-image{ position:static; aspect-ratio:16/10; }
   .cat-grid{ grid-template-columns:repeat(3,1fr); }
+  .hero-art{ right:4%; opacity:.36; transform:translateY(-42%) scale(.84); transform-origin:right center; }
 }
 @media (max-width: 640px){
   .nav-inner{ padding:12px 16px; }
   .nav-actions .btn-ghost, .account-menu{ display:none !important; }
   .hero{ padding:44px 18px 52px; }
+  .hero-art{ right:-34px; top:32px; transform:scale(.56); transform-origin:top right; opacity:.28; }
   .location-prompt{ width:100%; flex-wrap:wrap; }
   .location-prompt button{ margin-left:42px; }
   .section-wrap{ padding:32px 18px; }
