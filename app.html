@@ -19,6 +19,7 @@
     </a>
 
     <nav class="nav-links">
+      <a onclick="Nav.go('home')">Home</a>
       <a onclick="Nav.go('browse')">Browse</a>
       <a onclick="Nav.go('mylistings')">My Listings</a>
       <a href="#categories-section" onclick="Nav.go('home')">Categories</a>
@@ -51,6 +52,7 @@
   </div>
 
   <div class="mobile-menu" id="mobileMenu">
+    <a onclick="Nav.go('home')">Home</a>
     <a onclick="Nav.go('browse')">Browse</a>
     <a onclick="Nav.go('mylistings')">My Listings</a>
     <a onclick="Nav.go('sell')">Sell a book</a>
@@ -114,6 +116,15 @@
         </div>
       </div>
     </div>
+
+    <section class="featured-section" aria-labelledby="featuredHeading">
+      <div class="featured-head">
+        <div><span class="browse-kicker">Fresh on the shelf</span><h2 class="section-title" id="featuredHeading">Books near you</h2></div>
+        <button class="browse-more" onclick="Nav.go('browse')">Browse more <span>↗</span></button>
+      </div>
+      <div class="grid featured-grid" id="homeFeaturedGrid"></div>
+      <div class="empty-state featured-empty" id="homeFeaturedEmpty" style="display:none;"><div class="big">📚</div><h3>New shelves are coming</h3><p>Browse the marketplace to find the latest listings.</p></div>
+    </section>
 
   </section>
 

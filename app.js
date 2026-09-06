@@ -302,21 +302,28 @@ const Books = {
   async loadPublic(){
     const grid = document.getElementById('booksGrid');
     const empty = document.getElementById('booksEmpty');
-    if (!grid || !empty) return;
-    grid.innerHTML = '<p style="color:var(--muted);">Loading books…</p>';
+    const featuredGrid = document.getElementById('homeFeaturedGrid');
+    const featuredEmpty = document.getElementById('homeFeaturedEmpty');
+    if (!grid && !featuredGrid) return;
+    if (grid) grid.innerHTML = '<p style="color:var(--muted);">Loading books…</p>';
+    if (featuredGrid) featuredGrid.innerHTML = '<p style="color:var(--muted);">Loading books…</p>';
 
     try{
       const queries = [ Query.equal('status', 'live'), Query.orderDesc('$createdAt'), Query.limit(60) ];
       const res = await databases.listDocuments(CONFIG.databaseId, CONFIG.booksCollectionId, queries);
       allBooks = res.documents;
       Books.sortNearby();
-      Books.renderGrid(allBooks, grid, empty, true);
-      document.getElementById('resultsCount').textContent = res.total + ' book' + (res.total === 1 ? '' : 's');
+      if (grid && empty){
+        Books.renderGrid(allBooks, grid, empty, true);
+        document.getElementById('resultsCount').textContent = res.total + ' book' + (res.total === 1 ? '' : 's');
+      }
+      if (featuredGrid && featuredEmpty) Books.renderGrid(allBooks.slice(0, 4), featuredGrid, featuredEmpty, true);
     }catch(err){
       const error = document.createElement('p');
       error.style.color = 'var(--brick)';
       error.textContent = `Couldn't load listings. Check your Appwrite config in app.js. (${err.message || 'Unknown error'})`;
-      grid.replaceChildren(error);
+      if (grid) grid.replaceChildren(error);
+      if (featuredGrid) featuredGrid.replaceChildren(error.cloneNode(true));
     }
   },
 
